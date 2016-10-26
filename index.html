@@ -11,6 +11,47 @@
   <body>
     <script src="js/three.min.js"></script>
     <script src="js/OrbitControls.js"></script>
+    <script type="x-shader/x-vertex" id="vertexShader">
+      uniform float pointSize;
+      uniform float time;
+      
+      varying vec3 vColor;
+
+      const float pi = 3.14159;
+      float waterHeight = 1.0;
+      float wavelength = 10.0;
+      float speed = 1.0;
+      float amplitude = 1.0;
+      vec2 direction = vec2(1.0, 1.0);
+      
+      float wave(int i, float x, float y) {
+        float frequency = 2.0 * pi / wavelength;
+        float phase = speed * frequency;
+        float theta = dot(direction, vec2(x, y));
+        return amplitude * sin(theta * frequency + time * phase);
+      }
+
+      float waveHeight(float x, float y) {
+        float height = 0.0;
+	height += wave(1, x, y);
+        return height;
+      }
+
+      void main(void) {
+	vColor = vec3(position.x, position.y, 1);
+
+	vec3 posNew = position;
+        posNew.z = waterHeight + waveHeight(position.x, position.y);
+	gl_Position = projectionMatrix * modelViewMatrix * vec4( posNew, 1.0 );
+      }
+    </script>
+    <script type="x-shader/x-fragment" id="fragmentShader">
+      varying vec3 vColor;
+
+      void main() {
+        gl_FragColor = vec4(vColor.rgb, 1);
+      }
+    </script>
     <script>
       var scene = new THREE.Scene();
       var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -20,11 +61,30 @@
       renderer.setSize( window.innerWidth, window.innerHeight );
       document.body.appendChild( renderer.domElement );
 
-      var material = new THREE.MeshPhongMaterial( { color: 0x888888 } );
-      var circle = new THREE.CircleGeometry( 5, 64 );
+      //var material = new THREE.MeshPhongMaterial( { color: 0x888888 } );
+
+      var uniforms = { 
+	time: { type: "f", value: 0.0 }
+      };
+      
+      var material = new THREE.ShaderMaterial( {
+        uniforms: uniforms,
+        vertexColors: THREE.VertexColors,
+        vertexShader: document.getElementById( 'vertexShader' ).textContent,
+        fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+      } );
+
+      var circle = new THREE.CircleBufferGeometry( 5, 128 );
+      var size = 5;
+
       var pool = new THREE.Mesh( circle, material );
       scene.add( pool );
-      var poolBottom = new THREE.Mesh( circle, material );
+
+      var defMaterial = new THREE.MeshPhongMaterial ( {
+        color: 0xff0000
+      } );
+
+      var poolBottom = new THREE.Mesh( circle, defMaterial );
       scene.add( poolBottom );
       poolBottom.position.z = -5;
 
@@ -34,9 +94,15 @@
 
       controls = new THREE.OrbitControls( camera, renderer.domElement );
 
+      var clock = new THREE.Clock();
+      clock.start();
+
       function render() {
         requestAnimationFrame( render );
         renderer.render( scene, camera );
+
+	var delta = clock.getDelta();
+	uniforms.time.value += delta;
       }
       render();
     </script>
