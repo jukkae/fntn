@@ -14,16 +14,23 @@
     <script>
       var scene = new THREE.Scene();
       var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-      camera.position.z = 5;
+      camera.position.z = 10;
 
       var renderer = new THREE.WebGLRenderer();
       renderer.setSize( window.innerWidth, window.innerHeight );
       document.body.appendChild( renderer.domElement );
 
-      var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-      var circle = new THREE.CircleGeometry( 2, 64 );
+      var material = new THREE.MeshPhongMaterial( { color: 0x888888 } );
+      var circle = new THREE.CircleGeometry( 5, 64 );
       var pool = new THREE.Mesh( circle, material );
       scene.add( pool );
+      var poolBottom = new THREE.Mesh( circle, material );
+      scene.add( poolBottom );
+      poolBottom.position.z = -5;
+
+      var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+      directionalLight.position.set( 0, 1, 1 );
+      scene.add( directionalLight );
 
       controls = new THREE.OrbitControls( camera, renderer.domElement );
 
