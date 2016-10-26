@@ -11,6 +11,7 @@
   <body>
     <script src="js/three.min.js"></script>
     <script src="js/OrbitControls.js"></script>
+    <script src="js/TessellateModifier.js"></script>
     <script type="x-shader/x-vertex" id="vertexShader">
       uniform float time;
       uniform float wavelengths[2];
@@ -24,12 +25,19 @@
       float speed = 1.0;
       float amplitude = 1.0;
       vec2 direction = vec2(1.0, 1.0);
+
+      // sine function is a bit too smooth to look realistic
+      // --> move to nonnegative and raise to kth exponent
+      float modSin(float x) {
+        float k = 1.5;
+	return 2.0 * pow(((sin(x)+1.0)/2.0), k);
+      }
       
       float wave(int i, float x, float y) {
         float frequency = 2.0 * pi / wavelengths[i];
         float phase = speed * frequency;
         float theta = dot(direction, vec2(x, y));
-        return amplitudes[i] * sin(theta * frequency + time * phase);
+        return amplitudes[i] * modSin(theta * frequency + time * phase);
       }
 
       float waveHeight(float x, float y) {
@@ -80,7 +88,10 @@
       } );
       var size = 10;
 
-      var circle = new THREE.CircleBufferGeometry( size, 128 );
+      var circle = new THREE.CircleGeometry( size, 128 );
+
+      var tessellateModifier = new THREE.TessellateModifier(.01);
+      tessellateModifier.modify(circle);
 
       var pool = new THREE.Mesh( circle, material );
       scene.add( pool );
