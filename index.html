@@ -13,8 +13,6 @@
     <script src="js/OrbitControls.js"></script>
     <script src="js/TessellateModifier.js"></script>
     <script type="x-shader/x-vertex" id="vertexShader">
-      #define MAX_POINT_LIGHTS 4
-
       uniform float time;
       uniform float scale;
       uniform float timeFactor;
@@ -22,9 +20,9 @@
       uniform float amplitudes[4];
       uniform float speeds[4];
       uniform vec2 directions[4];
-      uniform vec3 pointLightColor[MAX_POINT_LIGHTS];
-      uniform vec3 pointLightPosition[MAX_POINT_LIGHTS];
-      uniform float pointLightDistance[MAX_POINT_LIGHTS];
+      uniform vec3 pointLightColor[NUM_POINT_LIGHTS];
+      uniform vec3 pointLightPosition[NUM_POINT_LIGHTS];
+      uniform float pointLightDistance[NUM_POINT_LIGHTS];
 
       
       varying vec3 vColor;
@@ -98,17 +96,15 @@
       }
     </script>
     <script type="x-shader/x-fragment" id="fragmentShader">
-      #define MAX_POINT_LIGHTS 4
-
       varying vec3 vColor;
       varying vec3 vViewPosition;
       varying vec3 worldNormal;
       varying vec3 eyeDirection;
       varying vec3 vWorldPos;
 
-      uniform vec3 pointLightColor[MAX_POINT_LIGHTS];
-      uniform vec3 pointLightPosition[MAX_POINT_LIGHTS];
-      uniform float pointLightDistance[MAX_POINT_LIGHTS];
+      uniform vec3 pointLightColor[NUM_POINT_LIGHTS];
+      uniform vec3 pointLightPosition[NUM_POINT_LIGHTS];
+      uniform float pointLightDistance[NUM_POINT_LIGHTS];
 
       void main() {
         vec4 addedLights = vec4(0.0, 0.0, 0.0, 1.0);
