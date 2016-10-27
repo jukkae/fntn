@@ -17,14 +17,17 @@
       uniform float scale;
       uniform float timeFactor;
       uniform float amplitudeFactor;
+      uniform float circularAmplitudeFactor;
+      
       uniform float wavelengths[6];
       uniform float amplitudes[6];
       uniform float speeds[6];
       uniform vec2 directions[6];
 
+      uniform float circularWavelength;
+      uniform float circularSpeed;
       uniform float circularWaveStrengths[2];
       uniform vec2 circularWaveCenterPoints[2];
-
       
       varying vec3 vColor;
       varying vec3 worldNormal;
@@ -56,24 +59,6 @@
         return height;
       }
 
-      float circularWave(int i, float x, float y) {
-        float frequency = 2.0 * pi / wavelengths[0];
-        float phase = speeds[0] * frequency;
-        vec2 waveDir = normalize(vec2(x, y) - circularWaveCenterPoints[i]);
-        float distance = distance(vec2(x, y), circularWaveCenterPoints[i]);
-        float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
-        float theta = dot(waveDir, vec2(x, y));
-        return circularWaveStrengths[i] * scale * amplitudes[0] * distanceFactor * amplitudeFactor * modSin(theta * frequency + time * -timeFactor * phase * 4.0);         
-      }
-
-      float circularWaveHeight(float x, float y) {
-        float height = 0.0;
-        for(int i = 0; i < 2; i++) {
-          height += circularWave(i, x, y);
-        }
-        return height;
-      }
-
       float dWavedx(int i, float x, float y) {
         float frequency = 2.0*pi/wavelengths[i];
         float phase = speeds[i] * frequency;
@@ -90,28 +75,46 @@
         return A * cos(theta * frequency + time * timeFactor * phase);
       }
 
+      float circularWave(int i, float x, float y) {
+        float frequency = 2.0 * pi / circularWavelength;
+        float phase = circularSpeed * frequency;
+        vec2 waveDir = normalize(vec2(x, y) - circularWaveCenterPoints[i]);
+        float distance = distance(vec2(x, y), circularWaveCenterPoints[i]);
+        float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
+        float theta = dot(waveDir, vec2(x, y));
+        return circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * modSin(theta * frequency + time * -timeFactor * phase * 4.0);         
+      }
+
+      float circularWaveHeight(float x, float y) {
+        float height = 0.0;
+        for(int i = 0; i < 2; i++) {
+          height += circularWave(i, x, y);
+        }
+        return height;
+      }
+
       float dCircularWavedx(int i, float x, float y) {
-        float frequency = 2.0 * pi / wavelengths[0];
-        float phase = speeds[0] * frequency;
+        float frequency = 2.0 * pi / circularWavelength;
+        float phase = circularSpeed * frequency;
         vec2 waveDir = normalize(vec2(x, y) - circularWaveCenterPoints[i]);
         float distance = distance(vec2(x, y), circularWaveCenterPoints[i]);
         float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
         float theta = dot(waveDir, vec2(x, y));
 
-        float A = circularWaveStrengths[i] * scale * amplitudes[0] * distanceFactor * waveDir.x * frequency;
-        return A * cos(theta * frequency + time * timeFactor * phase);
+        float A = circularWaveStrengths[i] * scale * distanceFactor * waveDir.x * frequency;
+        return A * cos(theta * frequency + time * -timeFactor * phase);
       }
 
       float dCircularWavedy(int i, float x, float y) {
-        float frequency = 2.0 * pi / wavelengths[0];
-        float phase = speeds[0] * frequency;
+        float frequency = 2.0 * pi / circularWavelength;
+        float phase = circularSpeed * frequency;
         vec2 waveDir = normalize(vec2(x, y) - circularWaveCenterPoints[i]);
         float distance = distance(vec2(x, y), circularWaveCenterPoints[i]);
         float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
         float theta = dot(waveDir, vec2(x, y));
 
-        float A = circularWaveStrengths[i] * scale * amplitudes[0] * distanceFactor * waveDir.y * frequency;
-        return A * cos(theta * frequency + time * timeFactor * phase);
+        float A = circularWaveStrengths[i] * scale * distanceFactor * waveDir.y * frequency;
+        return A * cos(theta * frequency + time * -timeFactor * phase);
       }
 
       vec3 waveNormal(float x, float y) {
@@ -228,6 +231,7 @@
           time: { type: "f", value: 0.0 },
           timeFactor: { type: "f", value: 1.5 },
           amplitudeFactor: { type: "f", value: 0.5 },
+          circularAmplitudeFactor: {type: "f", value: 0.02 },
           scale: { type: "f", value: 0.5 },
           wavelengths: { type: "f[]", value: [8.0, 5.0, 3.2, 2.1, 1.7, 1.3] },
           speeds: { type: "f[]", value: [0.4, 0.43, 0.47, 0.5, 0.8, 0.9] },
@@ -240,6 +244,8 @@
             new THREE.Vector2 ( 1.0, 0.3 ).normalize(),
             new THREE.Vector2 ( 0.0, 0.4 ).normalize()
           ] },
+          circularWavelength: { type: "f", value: 1.0 },
+          circularSpeed: { type: "f", value: 1.0 },
           circularWaveStrengths: { type: "f[]", value: [circularWaveStrength1, circularWaveStrength2] },
           circularWaveCenterPoints: { type: "v2[]", value: [
             new THREE.Vector2 ( 10.0, 0.0 ),
