@@ -22,6 +22,9 @@
       uniform vec2 directions[4];
       
       varying vec3 vColor;
+      varying vec3 worldNormal;
+      varying vec3 vViewPosition;
+      varying vec3 eyeDirection;
 
       const float pi = 3.14159;
 
@@ -29,7 +32,7 @@
       // --> move to nonnegative and raise to kth exponent
       float modSin(float x) {
         float k = 1.5;
-	return 2.0 * pow(((sin(x)+1.0)/2.0), k);
+        return 2.0 * pow(((sin(x)+1.0)/2.0), k);
       }
       
       float wave(int i, float x, float y) {
@@ -41,25 +44,62 @@
 
       float waveHeight(float x, float y) {
         float height = 0.0;
-	for(int i = 0; i < 4; i++) {
-	  height += wave(i, x, y);
-	}
+        for(int i = 0; i < 4; i++) {
+          height += wave(i, x, y);
+        }
         return height;
       }
 
-      void main(void) {
-	vColor = vec3((position.x+5.0)/10.0, (position.y+5.0)/10.0, 1);
+      float dWavedx(int i, float x, float y) {
+        float frequency = 2.0*pi/wavelengths[i];
+        float phase = speeds[i] * frequency;
+        float theta = dot(directions[i], vec2(x, y));
+        float A = amplitudes[i] * directions[i].x * frequency;
+        return A * cos(theta * frequency + time * phase);
+      }
 
-	vec3 posNew = position;
+      float dWavedy(int i, float x, float y) {
+        float frequency = 2.0*pi/wavelengths[i];
+        float phase = speeds[i] * frequency;
+        float theta = dot(directions[i], vec2(x, y));
+        float A = amplitudes[i] * directions[i].y * frequency;
+        return A * cos(theta * frequency + time * phase);
+      }
+
+      vec3 waveNormal(float x, float y) {
+        float dx = 0.0;
+        float dy = 0.0;
+        for (int i = 0; i < 4; i++) {
+            dx += dWavedx(i, x, y);
+            dy += dWavedy(i, x, y);
+        }
+        vec3 n = vec3(-dx, -dy, 1.0);
+        return normalize(n);
+      }
+
+      void main(void) {
+        vColor = vec3((position.x+5.0)/10.0, (position.y+5.0)/10.0, 1);
+        vec4 viewModelPosition = modelViewMatrix * vec4( position, 1 );
+        vViewPosition = viewModelPosition.xyz;
+        eyeDirection = normalize(vViewPosition - position);
+        
+        vec3 posNew = position;
         posNew.z = waveHeight(position.x, position.y);
-	gl_Position = projectionMatrix * modelViewMatrix * vec4( posNew, 1.0 );
+        worldNormal = waveNormal(position.x, position.y);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( posNew, 1.0 );
       }
     </script>
     <script type="x-shader/x-fragment" id="fragmentShader">
       varying vec3 vColor;
+      varying vec3 vViewPosition;
+      varying vec3 worldNormal;
+      varying vec3 eyeDirection;
 
       void main() {
-        gl_FragColor = vec4(vColor.rgb, 0.7);
+        vec3 r = reflect(eyeDirection, worldNormal);
+        vec4 c = vec4(r, 1.0);
+        //gl_FragColor = vec4(vColor.rgb, 0.7);
+        gl_FragColor = c;
       }
     </script>
     <script>
@@ -75,25 +115,25 @@
 
       // wave uniforms are basically arbitrary
       var uniforms = { 
-	time: { type: "f", value: 0.0 },
-	timeFactor: { type: "f", value: 1.0 },
-	scale: { type: "f", value: 0.5 },
-	wavelengths: { type: "f[]", value: [10.0, 5.0, 3.0, 1.0] },
-	speeds: { type: "f[]", value: [0.4, 0.6, 0.7, 1.0] },
-	amplitudes: { type: "f[]", value: [1.0, 0.5, 0.4, 0.2] },
-	directions: { type: "v2[]", value: [
-	  new THREE.Vector2 ( 1.0, 0.0 ),
-	  new THREE.Vector2 (-0.5, 0.5 ),
-	  new THREE.Vector2 ( 0.4, 0.7 ),
-	  new THREE.Vector2 ( 0.0, 0.1 )
-	] }
+  time: { type: "f", value: 0.0 },
+  timeFactor: { type: "f", value: 1.0 },
+  scale: { type: "f", value: 0.5 },
+  wavelengths: { type: "f[]", value: [10.0, 5.0, 3.0, 1.0] },
+  speeds: { type: "f[]", value: [0.4, 0.6, 0.7, 1.0] },
+  amplitudes: { type: "f[]", value: [1.0, 0.5, 0.4, 0.2] },
+  directions: { type: "v2[]", value: [
+    new THREE.Vector2 ( 1.0, 0.0 ),
+    new THREE.Vector2 (-0.5, 0.5 ),
+    new THREE.Vector2 ( 0.4, 0.7 ),
+    new THREE.Vector2 ( 0.0, 0.1 )
+  ] }
       };
       
       var material = new THREE.ShaderMaterial( {
         uniforms: uniforms,
         vertexShader: document.getElementById( 'vertexShader' ).textContent,
         fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
-	transparent: true
+  transparent: true
       } );
       var size = 10;
 
@@ -101,9 +141,9 @@
 
       var tessellateModifier = new THREE.TessellateModifier(.01);
       
-      var tessellationDepth = 9;
+      var tessellationDepth = 10;
       for(var i = 0; i < tessellationDepth; i++){
-	      tessellateModifier.modify(circle);
+        tessellateModifier.modify(circle);
       }
 
       var pool = new THREE.Mesh( circle, material );
@@ -130,8 +170,8 @@
         requestAnimationFrame( render );
         renderer.render( scene, camera );
 
-	var delta = clock.getDelta();
-	uniforms.time.value += delta;
+  var delta = clock.getDelta();
+  uniforms.time.value += delta;
       }
       render();
     </script>
