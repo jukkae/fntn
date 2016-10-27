@@ -101,7 +101,7 @@
         float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
         float theta = dot(waveDir, vec2(x, y));
 
-        float A = circularWaveStrengths[i] * scale * distanceFactor * waveDir.x * frequency;
+        float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * waveDir.x * frequency;
         return A * cos(theta * frequency + time * -timeFactor * phase);
       }
 
@@ -113,7 +113,7 @@
         float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
         float theta = dot(waveDir, vec2(x, y));
 
-        float A = circularWaveStrengths[i] * scale * distanceFactor * waveDir.y * frequency;
+        float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * waveDir.y * frequency;
         return A * cos(theta * frequency + time * -timeFactor * phase);
       }
 
