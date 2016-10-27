@@ -113,10 +113,11 @@
         for(int l = 0; l < NUM_POINT_LIGHTS; l++) {
           vec3 adjustedLight = pointLights[l].position + cameraPosition;
           vec3 lightDirection = normalize(vWorldPos - adjustedLight);
-          addedLights.rgb += clamp(dot(-lightDirection, worldNormal), 0.0, 1.0) * pointLights[l].color;
+          addedLights.rgb += clamp(dot(lightDirection, worldNormal), 0.0, 1.0) * pointLights[l].color;
         }
 
-        vec3 r = reflect(eyeDirection, worldNormal);
+        //vec3 r = reflect(eyeDirection, worldNormal);
+        r = vec3(0.5, 0.8, 1.0);
         vec4 c = vec4(r, 0.8);
         //gl_FragColor = vec4(vColor.rgb, 0.7);
         gl_FragColor = c * addedLights;
@@ -140,11 +141,11 @@
 
       var sphere = new THREE.SphereGeometry( 1 );
       var lightCue = new THREE.Mesh( sphere, defMaterial );
-      lightCue.position.set( 2, 2, 11 );
+      lightCue.position.set( 11, 11, 6 );
       scene.add(lightCue);
 
       var pointLight = new THREE.PointLight( 0xaaffaa, 1.0 );
-      pointLight.position.set( 2, 2, 10 );
+      pointLight.position.set( 10, 10, 5 );
       scene.add( pointLight );
 
       // wave uniforms are basically arbitrary
