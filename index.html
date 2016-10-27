@@ -53,6 +53,14 @@
         return height;
       }
 
+      float circularWave(float x, float y) {
+        float frequency = 2.0 * pi / wavelengths[0];
+        float phase = speeds[0] * frequency;
+        vec2 waveDir = normalize(vec2(x, y) - vec2(0.0, 0.0)); //vec2 = center of wave
+        float theta = dot(waveDir, vec2(x, y));
+        return scale * amplitudes[0] * 10.0 * amplitudeFactor * modSin(theta * frequency + time * timeFactor * phase); 
+      }
+
       float dWavedx(int i, float x, float y) {
         float frequency = 2.0*pi/wavelengths[i];
         float phase = speeds[i] * frequency;
@@ -89,6 +97,7 @@
         vec3 posNew = position;
         vWorldPos = position;
         posNew.z = waveHeight(position.x, position.y);
+        posNew.z = circularWave(position.x, position.y);
         worldNormal = waveNormal(position.x, position.y);
         gl_Position = projectionMatrix * modelViewMatrix * vec4( posNew, 1.0 );
       }
