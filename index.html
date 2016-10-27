@@ -22,6 +22,9 @@
       uniform float speeds[6];
       uniform vec2 directions[6];
 
+      uniform float circularWaveStrengths[2];
+      uniform vec2 circularWaveCenterPoints[2];
+
       
       varying vec3 vColor;
       varying vec3 worldNormal;
@@ -53,12 +56,20 @@
         return height;
       }
 
-      float circularWave(float x, float y) {
+      float circularWave(int i, float x, float y) {
         float frequency = 2.0 * pi / wavelengths[0];
         float phase = speeds[0] * frequency;
-        vec2 waveDir = normalize(vec2(x, y) - vec2(0.0, 0.0)); //vec2 = center of wave
+        vec2 waveDir = normalize(vec2(x, y) - circularWaveCenterPoints[i]);
         float theta = dot(waveDir, vec2(x, y));
-        return scale * amplitudes[0] * 10.0 * amplitudeFactor * modSin(theta * frequency + time * timeFactor * phase); 
+        return circularWaveStrengths[i] * scale * amplitudes[0] * 4.0 * amplitudeFactor * modSin(theta * frequency + time * -timeFactor * phase * 4.0);         
+      }
+
+      float circularWaveHeight(float x, float y) {
+        float height = 0.0;
+        for(int i = 0; i < 2; i++) {
+          height += circularWave(i, x, y);
+        }
+        return height;
       }
 
       float dWavedx(int i, float x, float y) {
@@ -97,7 +108,7 @@
         vec3 posNew = position;
         vWorldPos = position;
         posNew.z = waveHeight(position.x, position.y);
-        posNew.z = circularWave(position.x, position.y);
+        posNew.z = circularWaveHeight(position.x, position.y);
         worldNormal = waveNormal(position.x, position.y);
         gl_Position = projectionMatrix * modelViewMatrix * vec4( posNew, 1.0 );
       }
@@ -186,6 +197,11 @@
             new THREE.Vector2 ( 0.8, 0.2 ).normalize(),
             new THREE.Vector2 ( 1.0, 0.3 ).normalize(),
             new THREE.Vector2 ( 0.0, 0.4 ).normalize()
+          ] },
+          circularWaveStrengths: { type: "f[]", value: [1.0, 1.0] },
+          circularWaveCenterPoints: { type: "v2[]", value: [
+            new THREE.Vector2 ( 10.0, 0.0 ),
+            new THREE.Vector2 ( 0.0, 5.0 )
           ] }
         }
       ]);
@@ -227,6 +243,13 @@
 
         var delta = clock.getDelta();
         uniforms.time.value += delta;
+        for(var i = 0; i < 2; i++){
+          if(uniforms.circularWaveStrengths.value[i] > 0) {
+            uniforms.circularWaveStrengths.value[i] -= (delta/10.0);
+          } else {
+            uniforms.circularWaveStrengths.value[i] = 1.0;
+          }
+        }
       }
       render();
     </script>
