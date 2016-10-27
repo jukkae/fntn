@@ -150,16 +150,21 @@
       scene.add( pool );
 
       var defMaterial = new THREE.MeshPhongMaterial ( {
-        color: 0xff0000
+        color: 0xaaaaaa
       } );
 
       var poolBottom = new THREE.Mesh( circle, defMaterial );
       scene.add( poolBottom );
       poolBottom.position.z = -5;
 
-      var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
-      directionalLight.position.set( 0, 1, 1 );
-      scene.add( directionalLight );
+      var sphere = new THREE.SphereGeometry( 1 );
+      var lightCue = new THREE.Mesh( sphere, defMaterial );
+      lightCue.position.set( 2, 2, 11 );
+      scene.add(lightCue);
+
+      var pointLight = new THREE.PointLight( 0x00ff00, 1.0 );
+      pointLight.position.set( 2, 2, 10 );
+      scene.add( pointLight );
 
       controls = new THREE.OrbitControls( camera, renderer.domElement );
 
