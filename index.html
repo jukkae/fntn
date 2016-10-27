@@ -82,7 +82,9 @@
         float distance = distance(vec2(x, y), circularWaveCenterPoints[i]);
         float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
         float theta = dot(waveDir, vec2(x, y));
-        return circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * modSin(theta * frequency + time * -timeFactor * phase);         
+
+        float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor;
+        return A * sin(theta * frequency + time * -timeFactor * phase);         
       }
 
       float circularWaveHeight(float x, float y) {
@@ -98,11 +100,11 @@
         float phase = circularSpeed * frequency;
         vec2 waveDir = normalize(vec2(x, y) - circularWaveCenterPoints[i]);
         float distance = distance(vec2(x, y), circularWaveCenterPoints[i]);
-        float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
+        float distanceFactor = 10.0; //clamp(10.0 - distance, 0.0, 10.0);
         float theta = dot(waveDir, vec2(x, y));
 
         float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * waveDir.x * frequency;
-        return A * cos(theta * frequency + time * -timeFactor * phase);
+        return A * cos((theta * frequency) + (time * -timeFactor * phase));
       }
 
       float dCircularWavedy(int i, float x, float y) {
@@ -110,11 +112,11 @@
         float phase = circularSpeed * frequency;
         vec2 waveDir = normalize(vec2(x, y) - circularWaveCenterPoints[i]);
         float distance = distance(vec2(x, y), circularWaveCenterPoints[i]);
-        float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
+        float distanceFactor = 10.0; //clamp(10.0 - distance, 0.0, 10.0);
         float theta = dot(waveDir, vec2(x, y));
 
         float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * waveDir.y * frequency;
-        return A * cos(theta * frequency + time * -timeFactor * phase);
+        return A * cos((theta * frequency) + (time * -timeFactor * phase));
       }
 
       vec3 waveNormal(float x, float y) {
@@ -150,7 +152,7 @@
         vec3 posNew = position;
         vWorldPos = position;
         //posNew.z += waveHeight(position.x, position.y);
-        posNew.z += circularWaveHeight(position.x, position.y);
+        //posNew.z += circularWaveHeight(position.x, position.y);
         vec3 wn = waveNormal(position.x, position.y);
         vec3 cwn = circularWaveNormal(position.x, position.y);
         //worldNormal = normalize(wn+cwn);
