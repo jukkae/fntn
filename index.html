@@ -20,9 +20,6 @@
       uniform float amplitudes[4];
       uniform float speeds[4];
       uniform vec2 directions[4];
-      uniform vec3 pointLightColor[NUM_POINT_LIGHTS];
-      uniform vec3 pointLightPosition[NUM_POINT_LIGHTS];
-      uniform float pointLightDistance[NUM_POINT_LIGHTS];
 
       
       varying vec3 vColor;
@@ -102,16 +99,18 @@
       varying vec3 eyeDirection;
       varying vec3 vWorldPos;
 
-      uniform vec3 pointLightColor[NUM_POINT_LIGHTS];
-      uniform vec3 pointLightPosition[NUM_POINT_LIGHTS];
-      uniform float pointLightDistance[NUM_POINT_LIGHTS];
+      struct PointLight {
+        vec3 position;
+        vec3 color;
+      };
+      uniform PointLight pointLights[ NUM_POINT_LIGHTS ];
 
       void main() {
         vec4 addedLights = vec4(0.0, 0.0, 0.0, 1.0);
-        vec3 lightDirection = normalize(vWorldPos - pointLightPosition[0]);
-        addedLights.rgb += clamp(dot(-lightDirection, worldNormal), 0.0, 1.0) * pointLightColor[0];
+        vec3 lightDirection = normalize(vWorldPos - pointLights[0].position);
+        addedLights.rgb += clamp(dot(-lightDirection, worldNormal), 0.0, 1.0) * pointLights[0].color;
 
-        addedLights.g = pointLightColor[0].g; // yes i know
+        addedLights.g = pointLights[0].color.g; // yes i know
 
         vec3 r = reflect(eyeDirection, worldNormal);
         vec4 c = vec4(r, 0.8);
