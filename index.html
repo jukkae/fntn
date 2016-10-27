@@ -31,7 +31,7 @@
       // sine function is a bit too smooth to look realistic
       // --> move to nonnegative and raise to kth exponent
       float modSin(float x) {
-        float k = 1.5;
+        float k = 1.8;
         return 2.0 * pow(((sin(x)+1.0)/2.0), k);
       }
       
@@ -97,7 +97,7 @@
 
       void main() {
         vec3 r = reflect(eyeDirection, worldNormal);
-        vec4 c = vec4(r, 1.0);
+        vec4 c = vec4(r, 0.8);
         //gl_FragColor = vec4(vColor.rgb, 0.7);
         gl_FragColor = c;
       }
