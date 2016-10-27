@@ -60,8 +60,10 @@
         float frequency = 2.0 * pi / wavelengths[0];
         float phase = speeds[0] * frequency;
         vec2 waveDir = normalize(vec2(x, y) - circularWaveCenterPoints[i]);
+        float distance = distance(vec2(x, y), circularWaveCenterPoints[i]);
+        float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
         float theta = dot(waveDir, vec2(x, y));
-        return circularWaveStrengths[i] * scale * amplitudes[0] * 4.0 * amplitudeFactor * modSin(theta * frequency + time * -timeFactor * phase * 4.0);         
+        return circularWaveStrengths[i] * scale * amplitudes[0] * distanceFactor * amplitudeFactor * modSin(theta * frequency + time * -timeFactor * phase * 4.0);         
       }
 
       float circularWaveHeight(float x, float y) {
@@ -179,6 +181,9 @@
       pointLight2.position.set( 0, 0, 8 );
       scene.add( pointLight2 );
 
+      var circularWaveStrength1 = Math.random();
+      var circularWaveStrength2 = Math.random();
+
       // wave uniforms are basically arbitrary
       var uniforms = THREE.UniformsUtils.merge([
         THREE.UniformsLib['lights'],
@@ -198,7 +203,7 @@
             new THREE.Vector2 ( 1.0, 0.3 ).normalize(),
             new THREE.Vector2 ( 0.0, 0.4 ).normalize()
           ] },
-          circularWaveStrengths: { type: "f[]", value: [1.0, 1.0] },
+          circularWaveStrengths: { type: "f[]", value: [circularWaveStrength1, circularWaveStrength2] },
           circularWaveCenterPoints: { type: "v2[]", value: [
             new THREE.Vector2 ( 10.0, 0.0 ),
             new THREE.Vector2 ( 0.0, 5.0 )
@@ -237,6 +242,14 @@
       var clock = new THREE.Clock();
       clock.start();
 
+      function getRandomPoint() {
+        dSquared = Math.random() * size * size;
+        theta = Math.random() * Math.PI * 2;
+        x = Math.sqrt(dSquared) * Math.cos(theta);
+        y = Math.sqrt(dSquared) * Math.sin(theta);
+        return new THREE.Vector2(x, y);
+      }
+
       function render() {
         requestAnimationFrame( render );
         renderer.render( scene, camera );
@@ -248,6 +261,7 @@
             uniforms.circularWaveStrengths.value[i] -= (delta/10.0);
           } else {
             uniforms.circularWaveStrengths.value[i] = 1.0;
+            uniforms.circularWaveCenterPoints.value[i] = getRandomPoint();
           }
         }
       }
