@@ -99,28 +99,32 @@
         vec2 vertex = vec2(x, y);
         vec2 center = circularWaveCenterPoints[i];
         float frequency = 2.0 * pi / circularWavelength;
-        float phase = circularSpeed * frequency;
+        float phaseSpeed = circularSpeed * frequency;
         vec2 waveDir = normalize(vertex - center); // problems here
         float distance = distance(vertex, center);
         float distanceFactor = 10.0; //clamp(10.0 - distance, 0.0, 10.0);
         float theta = dot(waveDir, vertex); // or problems here
 
         float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * waveDir.x * frequency;
-        return A * cos((theta * frequency) + (time * -timeFactor * phase));
+        //return A * cos((theta * frequency) + (time * -timeFactor * phaseSpeed));
+        return A * cos(theta * sqrt(pow((vertex.x - center.x), 2.0) + pow((vertex.y - center.y), 2.0)) + (time * -timeFactor * phaseSpeed)
+          );
       }
 
       float dCircularWavedy(int i, float x, float y) {
         vec2 vertex = vec2(x, y);
         vec2 center = circularWaveCenterPoints[i];
         float frequency = 2.0 * pi / circularWavelength;
-        float phase = circularSpeed * frequency;
+        float phaseSpeed = circularSpeed * frequency;
         vec2 waveDir = normalize(vertex - center);
         float distance = distance(vertex, center);
         float distanceFactor = 10.0; //clamp(10.0 - distance, 0.0, 10.0);
         float theta = dot(waveDir, vertex);
 
         float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * waveDir.y * frequency;
-        return A * cos((theta * frequency) + (time * -timeFactor * phase));
+        //return A * cos((theta * frequency) + (time * -timeFactor * phaseSpeed));
+        return A * cos(theta * sqrt(pow((vertex.x - center.x), 2.0) + pow((vertex.y - center.y), 2.0)) + (time * -timeFactor * phaseSpeed)
+          );
       }
 
       vec3 waveNormal(float x, float y) {
