@@ -117,8 +117,9 @@
         }
 
         //vec3 r = reflect(eyeDirection, worldNormal);
-        r = vec3(0.5, 0.8, 1.0);
-        vec4 c = vec4(r, 0.8);
+        vec3 r = vec3(0.5, 0.8, 1.0);
+        float alpha = clamp(dot(-eyeDirection, worldNormal), 0.0, 1.0);
+        vec4 c = vec4(r, alpha);
         //gl_FragColor = vec4(vColor.rgb, 0.7);
         gl_FragColor = c * addedLights;
       }
