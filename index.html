@@ -453,6 +453,7 @@
           particleGeometry.vertices.push( new THREE.Vector3() );
           fbos[i] = new FBO();
           fbos[i].init( 32, 32, renderer, particleSimulationShaders[i], particleRenderShaders[i], particleGeometry );
+          fbos[i].particles.renderOrder = 1;
           particleSubstrates[i].add( fbos[i].particles );
           fbos[i].update();
         }
