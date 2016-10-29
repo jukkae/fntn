@@ -12,6 +12,8 @@
     <script src="js/three.min.js"></script>
     <script src="js/OrbitControls.js"></script>
     <script src="js/TessellateModifier.js"></script>
+    <script src="util/fbo.js"></script> <!-- should be imported ofc -->
+    <script src="util/GeometryUtils.js"></script>
     <script type="x-shader/x-vertex" id="vertexShader">
       uniform float time;
       uniform float scale;
@@ -201,6 +203,122 @@
         gl_FragColor = c * addedLights;
       }
     </script>
+    <script type="x-shader/x-vertex" id="simulationVertexShader">
+     varying vec2 vUv;
+      void main() {
+          vUv = vec2(uv.x, 1.0 - uv.y);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+      }
+    </script>
+    <script type="x-shader/x-fragment" id="simulationFragmentShader">
+
+      uniform sampler2D positions;
+      uniform sampler2D origin;
+      uniform float timer;
+      uniform float radius;
+
+      varying vec2 vUv;
+
+      uniform float orderTimer;
+      uniform float explodeTimer;
+
+      const float PI = 3.1415926535897932384626433832795;
+
+      void main() {
+          vec3 pos;
+          vec3 originPos;
+              
+          pos = texture2D( positions, vUv ).rgb;
+          originPos = texture2D( origin, vUv ).rgb;
+
+          if (explodeTimer == 1.0) {
+              pos = originPos;
+          } 
+
+          if (orderTimer <= 0.3) {
+              if ( timer > 0.99 ) {
+                  pos = texture2D( origin, vUv ).xyz;
+              } else {
+                  pos = texture2D( positions, vUv ).rgb;
+
+                  float x = pos.x;
+                  float y = pos.y;
+                  float z = pos.z;
+
+
+                  pos.x += sin( y * 13.0 ) * cos( z * 13.0 ) * 0.02 * (1.0 - (orderTimer / 0.3));
+                  pos.y += sin( x * 13.0 ) * cos( z * 13.0 ) * 0.01 * (1.0 - (orderTimer / 0.3));
+                  pos.z += sin( x * 14.0 ) * cos( y * 14.0 ) * 0.01 * (1.0 - (orderTimer / 0.3));
+              } 
+          } else {
+              // Try to organize the circle by color
+              float particleRadius = distance(originPos, vec3(0, 0, 0));
+
+              if (explodeTimer > 0.0 && explodeTimer < 1.0) {
+                  float variation = 0.2 + 0.8;
+                  particleRadius += (50.0 * explodeTimer * explodeTimer * variation);
+      //            pos.z = originPos.z + 10.0 * explodeTimer * explodeTimer * variation;
+              } else {
+       //           pos.z = originPos.z;
+              }
+
+              float progressInCircle = (1.0 - vUv.x) * (1.1 - vUv.y) / 0.84;
+              if (progressInCircle > 1.0) {
+                  progressInCircle -= 0.3;
+              }
+              pos.x = mix(originPos.x,cos(progressInCircle * 2.0 * PI) * particleRadius, (orderTimer-0.3)/0.7);
+              pos.y = mix(originPos.y, sin(progressInCircle * 2.0 * PI) * particleRadius, (orderTimer-0.3)/0.7);
+          }
+
+
+          gl_FragColor = vec4( pos, 1.0 );
+      }
+    </script>
+    <script type="x-shader/x-vertex" id="renderVertexShader">
+      //float texture containing the positions of each particle
+      uniform sampler2D positions;
+      uniform sampler2D origin;
+
+      attribute vec2 reference;
+      varying vec3 vColor;
+
+      uniform float pointSize;
+      uniform float radius;
+
+      uniform int boom;
+
+      void main() {
+
+          //the mesh is a nomrliazed square so the uvs = the xy positions of the vertices
+          vec3 pos = texture2D( positions, reference).xyz;
+
+          // Distance from center?
+          /*
+          vColor = vec3(distToCenter, 0.5, 0.5);
+          */
+
+          vColor = vec3(1.0, reference);
+          if (boom == 1) {
+              float distToCenter = distance(pos, vec3(0, 0, 0)) / (radius);
+              vColor.g += (25.0 - distToCenter) / 65.0;
+              vColor.b += (25.0 - distToCenter) / 65.0;
+          }
+
+          gl_Position = projectionMatrix *  modelViewMatrix * vec4( pos, 1.0 );
+
+          gl_PointSize = pointSize;
+
+      }
+    </script>
+    <script type="x-shader/x-fragment" id="renderFragmentShader">
+      varying vec3 vColor;
+
+      void main() {
+        //gl_FragColor = vec4( vec3( 1., .5, .5 ), .85 );
+        //gl_FragColor = vec4(vColor, 1.);
+        gl_FragColor = vec4(1., 0., 0., 1.);
+      }
+    </script>
     <script>
       var scene = new THREE.Scene();
       var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -226,7 +344,6 @@
       pointLight.position.set( 10, 10, 5 );
       scene.add( pointLight );
 
-      var sphere = new THREE.SphereGeometry( 1 );
       var lightCue2 = new THREE.Mesh( sphere, defMaterial );
       lightCue2.position.set( 0, 0, 9 );
       scene.add(lightCue2);
@@ -268,6 +385,76 @@
         }
       ]);
       
+      var positions = initParticles();
+
+      function initParticles() {
+        let fboGeo = sphere;
+
+        let data = new Float32Array( 480*320 );
+
+        let points = THREE.GeometryUtils.randomPointsInGeometry(fboGeo, 480*320 );
+        for ( var i = 0, j = 0, l = data.length; i < l; i += 3, j += 1 ) {
+            data[ i ] = points[ j ].x;
+            data[ i + 1 ] = points[ j ].y;
+            data[ i + 2 ] = points[ j ].z;
+        }
+        let positions = new THREE.DataTexture( data, 480, 320, THREE.RGBFormat, THREE.FloatType );
+        positions.needsUpdate = true;
+        
+        return positions;
+      };
+
+      var simulationUniforms = {
+              positions: { type: "t", value: positions },
+              origin: { type: "t", value: positions },
+              timer: { type: "f", value: 0},
+              radius: { type: "f", value: 10 },
+              orderTimer: { type: "f", value: 0.0 },
+              explodeTimer: { type: "f", value: 0.0 }
+      };
+
+      var simulationMaterial = new THREE.ShaderMaterial( {
+        uniforms: simulationUniforms,
+        vertexShader: document.getElementById( 'simulationVertexShader' ).textContent,
+        fragmentShader: document.getElementById( 'simulationFragmentShader' ).textContent
+      } );
+
+      var renderShader = new THREE.ShaderMaterial( {
+          uniforms: {
+              positions: { type: "t", value: null },
+              pointSize: { type: "f", value: 0},
+              radius: { type: "f", value: 10 },
+              boom: { type: "1", value: 0 }
+          },
+          vertexShader: document.getElementById( 'renderVertexShader' ).textContent,
+        fragmentShader: document.getElementById( 'renderFragmentShader' ).textContent,
+          transparent: false
+//            blending:THREE.AdditiveBlending
+      } );
+
+      var particleSurrogate = new THREE.Mesh( sphere, renderShader );
+      particleSurrogate.position.set( 0, 0, 3 );
+      scene.add(particleSurrogate);
+
+      function init() {
+        // Particle geometry? Just once particle
+        var particleGeometry  = new THREE.Geometry();
+        particleGeometry.vertices.push( new THREE.Vector3() );
+        this.fbo = new FBO();
+        this.fbo.init( 480, 320, renderer, simulationMaterial, renderShader, particleGeometry );
+        particleSurrogate.add( this.fbo.particles );
+        this.fbo.update();
+      }
+
+      function update(dt,et) {
+        simulationMaterial.uniforms.timer.value = et;
+        this.fbo.update();
+        if (this.simulationMaterial.uniforms.orderTimer.value > 0.3 && 
+           this.simulationMaterial.uniforms.explodeTimer.value == 0.0) {
+            this.rotateZ(0.5 * dt);
+        }
+      }
+
       var material = new THREE.ShaderMaterial( {
         uniforms: uniforms,
         vertexShader: document.getElementById( 'vertexShader' ).textContent,
@@ -318,10 +505,13 @@
             uniforms.circularWaveStrengths.value[i] -= (delta/10.0);
           } else {
             uniforms.circularWaveStrengths.value[i] = 1.0;
-            uniforms.circularWaveCenterPoints.value[i] = getRandomPoint();
+            var center = getRandomPoint();
+            uniforms.circularWaveCenterPoints.value[i] = center;
           }
         }
+        update(delta, delta);
       }
+      init();
       render();
     </script>
   </body>
