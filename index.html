@@ -215,7 +215,6 @@
       uniform sampler2D positions;
       uniform sampler2D origin;
       uniform float timer;
-      uniform float radius;
       uniform float timeFactor;
 
       varying vec2 vUv;
@@ -237,6 +236,7 @@
               
           pos = texture2D( positions, vUv ).rgb;
           originPos = texture2D( origin, vUv ).rgb;
+          if(originPos.z < 0.0) originPos.z = -originPos.z;
 
           float t = 10.0 - splashTimer;
           float theta = 45.0; // calculate this
@@ -268,7 +268,6 @@
       varying vec3 vColor;
 
       uniform float pointSize;
-      uniform float radius;
 
       uniform int boom;
 
@@ -281,13 +280,13 @@
 
           vColor = vec3(1.0, reference);
           if (boom == 1) {
-              float distToCenter = distance(pos, vec3(0, 0, 0)) / (radius);
+              float distToCenter = distance(pos, vec3(0, 0, 0));
               vColor.g += (25.0 - distToCenter) / 65.0;
               vColor.b += (25.0 - distToCenter) / 65.0;
           }
 
           gl_Position = projectionMatrix *  modelViewMatrix * vec4( pos, 1.0 );
-          pSize = 10.0;
+          pSize = 2.0;
           if(pos.z < 0.0) {
             pSize = 0.0;
           }
@@ -299,7 +298,7 @@
       varying vec3 vColor;
 
       void main() {
-        gl_FragColor = vec4(vColor, 1.);
+        gl_FragColor = vec4(.3, .5, .9, 1.);
       }
     </script>
     <script>
@@ -408,7 +407,6 @@
           origin: { type: "t", value: positions },
           timer: { type: "f", value: 0},
           timeFactor: {type: "f", value: 1.0 },
-          radius: { type: "f", value: 10 },
           orderTimer: { type: "f", value: 0.0 },
           splashTimer: { type: "f", value: 0.0 }
         },
@@ -420,7 +418,6 @@
           uniforms: {
               positions: { type: "t", value: null },
               pointSize: { type: "f", value: 10.0},
-              radius: { type: "f", value: 10 },
               boom: { type: "1", value: 0 }
           },
           vertexShader: document.getElementById( 'renderVertexShader' ).textContent,
@@ -446,7 +443,7 @@
           var particleGeometry  = new THREE.Geometry();
           particleGeometry.vertices.push( new THREE.Vector3() );
           fbo = new FBO();
-          fbo.init( 5, 5, renderer, simulationShader, renderShader, particleGeometry );
+          fbo.init( 50, 50, renderer, simulationShader, renderShader, particleGeometry );
           particleSubstrates[i].add( fbo.particles );
           fbo.update();
         }
