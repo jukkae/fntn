@@ -28,8 +28,8 @@
 
       uniform float circularWavelength;
       uniform float circularSpeed;
-      uniform float circularWaveStrengths[2];
-      uniform vec2 circularWaveCenterPoints[2];
+      uniform float circularWaveStrengths[8];
+      uniform vec2 circularWaveCenterPoints[8];
       
       varying vec3 vColor;
       varying vec3 worldNormal;
@@ -94,7 +94,7 @@
 
       float circularWaveHeight(float x, float y) {
         float height = 0.0;
-        for(int i = 0; i < 2; i++) {
+        for(int i = 0; i < 8; i++) {
           height += circularWave(i, x, y);
         }
         return height;
@@ -145,7 +145,7 @@
       vec3 circularWaveNormal(float x, float y) {
         float dx = 0.0;
         float dy = 0.0;
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 8; i++) {
           dx += dCircularWavedx(i, x, y);
           dy += dCircularWavedy(i, x, y);
         }
@@ -337,6 +337,12 @@
 
       var circularWaveStrength1 = Math.random();
       var circularWaveStrength2 = Math.random();
+      var circularWaveStrength3 = Math.random();
+      var circularWaveStrength4 = Math.random();
+      var circularWaveStrength5 = Math.random();
+      var circularWaveStrength6 = Math.random();
+      var circularWaveStrength7 = Math.random();
+      var circularWaveStrength8 = Math.random();
 
       // wave uniforms are basically arbitrary
       var uniforms = THREE.UniformsUtils.merge([
@@ -360,10 +366,18 @@
           ] },
           circularWavelength: { type: "f", value: 1.0 },
           circularSpeed: { type: "f", value: 1.0 },
-          circularWaveStrengths: { type: "f[]", value: [circularWaveStrength1, circularWaveStrength2] },
-          circularWaveCenterPoints: { type: "v2[]", value: [
+          circularWaveStrengths: { type: "f[]", value: [circularWaveStrength1, circularWaveStrength2, circularWaveStrength3, circularWaveStrength4,
+            circularWaveStrength5, circularWaveStrength6,
+            circularWaveStrength7, circularWaveStrength8] },
+            circularWaveCenterPoints: { type: "v2[]", value: [
             new THREE.Vector2 ( 10.0, 0.0 ),
-            new THREE.Vector2 ( 0.0, 5.0 )
+            new THREE.Vector2 ( 0.0, 5.0 ),
+            new THREE.Vector2 ( 0.0, 0.0 ),
+            new THREE.Vector2 ( 3.0, 5.0 ),
+            new THREE.Vector2 ( 0.0, 2.0 ),
+            new THREE.Vector2 ( 5.0, 5.0 ),
+            new THREE.Vector2 ( 0.0, 7.0 ),
+            new THREE.Vector2 ( 0.0, -5.0 )
           ] }
         }
       ]);
@@ -417,8 +431,8 @@
 
       var particleSubstrates = [];
 
-      var noOfSubstrates = 2;
-      for (var i = 0; i < noOfSubstrates; i++) {
+      var noOfCircularWaves = 8;
+      for (var i = 0; i < noOfCircularWaves; i++) {
         var s = new THREE.Object3D();
         s.position.set( 0, 0, 0 );
         scene.add(s);
@@ -428,7 +442,7 @@
 
       function init() {
         // One vertex per particle
-        for (var i = 0; i < noOfSubstrates; i++) {
+        for (var i = 0; i < noOfCircularWaves; i++) {
           var particleGeometry  = new THREE.Geometry();
           particleGeometry.vertices.push( new THREE.Vector3() );
           fbo = new FBO();
@@ -489,7 +503,7 @@
 
         var delta = clock.getDelta();
         uniforms.time.value += delta;
-        for(var i = 0; i < 2; i++){
+        for(var i = 0; i < noOfCircularWaves; i++){
           if(uniforms.circularWaveStrengths.value[i] > 0) {
             uniforms.circularWaveStrengths.value[i] -= (delta/10.0);
           } else {
