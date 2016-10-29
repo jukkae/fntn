@@ -1,6 +1,1 @@
-look into:
-https://github.com/Avnerus/tzina/blob/master/client/sun_loader.js
-https://github.com/Avnerus/tzina/blob/master/client/shaders/sun_loader/simulation_vs.glsl
-https://github.com/Avnerus/tzina/blob/master/client/shaders/sun_loader/simulation_fs.glsl
-https://github.com/Avnerus/tzina/blob/master/client/shaders/sun_loader/render_vs.glsl
-https://github.com/Avnerus/tzina/blob/master/client/shaders/sun_loader/render_fs.glsl
+idea: have particles on the circle, and then activate particles close enough to splash
