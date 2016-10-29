@@ -37,6 +37,8 @@
       varying vec3 eyeDirection;
       varying vec3 vWorldPos;
 
+      float circularMaxDist = 5.0;
+
       const float pi = 3.14159;
 
       // sine function is a bit too smooth to look realistic
@@ -84,7 +86,7 @@
         float phaseSpeed = circularSpeed * frequency;
         vec2 waveDir = normalize(vertex - center);
         float distance = distance(vertex, center);
-        float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
+        float distanceFactor = clamp(circularMaxDist - distance, 0.0, circularMaxDist);
         float theta = dot(waveDir, vertex);
 
         float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor;
@@ -281,7 +283,7 @@
           }
 
           gl_Position = projectionMatrix *  modelViewMatrix * vec4( pos, 1.0 );
-          pSize = 5.0;
+          pSize = 2.0;
           if(pos.z < 0.0) {
             pSize = 0.0;
           }
@@ -503,7 +505,7 @@
         uniforms.time.value += delta;
         for(var i = 0; i < noOfCircularWaves; i++){
           if(uniforms.circularWaveStrengths.value[i] > 0) {
-            uniforms.circularWaveStrengths.value[i] -= (delta/10.0);
+            uniforms.circularWaveStrengths.value[i] -= (delta/5.0);
           } else {
             var center = getRandomPoint();
             particleSubstrates[i].position.x = center.x/2; //wtf
