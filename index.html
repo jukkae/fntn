@@ -427,6 +427,9 @@
       } );
 
       var particleSubstrates = [];
+      var particleSimulationShaders = [];
+      var particleRenderShaders = [];
+      var fbos = [];
 
       var noOfCircularWaves = 8;
       for (var i = 0; i < noOfCircularWaves; i++) {
@@ -434,6 +437,30 @@
         s.position.set( 0, 0, 0 );
         scene.add(s);
         particleSubstrates[i] = s;
+
+        particleSimulationShaders[i] = new THREE.ShaderMaterial( {
+          uniforms: {
+            positions: { type: "t", value: positions },
+            origin: { type: "t", value: positions },
+            timer: { type: "f", value: 0},
+            timeFactor: {type: "f", value: 1.0 },
+            orderTimer: { type: "f", value: 0.0 },
+            splashTimer: { type: "f", value: 0.0 }
+          },
+          vertexShader: document.getElementById( 'simulationVertexShader' ).textContent,
+          fragmentShader: document.getElementById( 'simulationFragmentShader' ).textContent
+        } );
+
+        particleRenderShaders[i] = new THREE.ShaderMaterial( {
+          uniforms: {
+              positions: { type: "t", value: null },
+              pointSize: { type: "f", value: 10.0},
+              boom: { type: "1", value: 0 }
+          },
+          vertexShader: document.getElementById( 'renderVertexShader' ).textContent,
+          fragmentShader: document.getElementById( 'renderFragmentShader' ).textContent,
+          transparent: false
+        } );
       }
 
 
@@ -442,17 +469,19 @@
         for (var i = 0; i < noOfCircularWaves; i++) {
           var particleGeometry  = new THREE.Geometry();
           particleGeometry.vertices.push( new THREE.Vector3() );
-          fbo = new FBO();
-          fbo.init( 50, 50, renderer, simulationShader, renderShader, particleGeometry );
-          particleSubstrates[i].add( fbo.particles );
-          fbo.update();
+          fbos[i] = new FBO();
+          fbos[i].init( 50, 50, renderer, particleSimulationShaders[i], particleRenderShaders[i], particleGeometry );
+          particleSubstrates[i].add( fbos[i].particles );
+          fbos[i].update();
         }
       }
 
       function update(dt, et) {
-        simulationShader.uniforms.timer.value = et;
-        fbo.update();
-        simulationShader.uniforms.splashTimer.value -= dt;
+        for(var i = 0; i < noOfCircularWaves; i++){
+          particleSimulationShaders[i].uniforms.timer.value = et;
+          fbos[i].update();
+          particleSimulationShaders[i].uniforms.splashTimer.value -= dt;
+        }
       }
 
       var material = new THREE.ShaderMaterial( {
@@ -508,7 +537,7 @@
             particleSubstrates[i].position.x = center.x;
             particleSubstrates[i].position.y = center.y;
 
-            simulationShader.uniforms.splashTimer.value = 10.0;
+            particleSimulationShaders[i].uniforms.splashTimer.value = 10.0;
             uniforms.circularWaveStrengths.value[i] = 1.0;
             uniforms.circularWaveCenterPoints.value[i] = center;
           }
