@@ -305,7 +305,7 @@
           }
 
           gl_Position = projectionMatrix *  modelViewMatrix * vec4( pos, 1.0 );
-          gl_PointSize = pointSize * 10.0;
+          gl_PointSize = 10.0;
 
       }
     </script>
@@ -315,7 +315,7 @@
       void main() {
         //gl_FragColor = vec4( vec3( 1., .5, .5 ), .85 );
         //gl_FragColor = vec4(vColor, 1.);
-        gl_FragColor = vec4(1., 0., 0., 1.);
+        gl_FragColor = vec4(1., 0., 1., 1.);
       }
     </script>
     <script>
