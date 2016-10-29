@@ -424,10 +424,10 @@
             positions: { type: "t", value: positions },
             origin: { type: "t", value: positions },
             timer: { type: "f", value: 0},
-            timeFactor: {type: "f", value: 2.0 },
+            timeFactor: {type: "f", value: 3.0 },
             orderTimer: { type: "f", value: 0.0 },
             splashTimer: { type: "f", value: 0.0 },
-            forceFactor: { type: "f", value: 1.5 }
+            forceFactor: { type: "f", value: 1.2 }
           },
           vertexShader: document.getElementById( 'simulationVertexShader' ).textContent,
           fragmentShader: document.getElementById( 'simulationFragmentShader' ).textContent
@@ -436,7 +436,7 @@
         particleRenderShaders[i] = new THREE.ShaderMaterial( {
           uniforms: {
               positions: { type: "t", value: null },
-              pointSize: { type: "f", value: 5.0},
+              pointSize: { type: "f", value: 2.5 },
               boom: { type: "1", value: 0 }
           },
           vertexShader: document.getElementById( 'renderVertexShader' ).textContent,
