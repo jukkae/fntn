@@ -295,7 +295,7 @@
       varying vec3 vColor;
 
       void main() {
-        gl_FragColor = vec4(.7, .7, .95, 0.15);
+        gl_FragColor = vec4(.8, .8, .95, 0.15);
       }
     </script>
     <script>
@@ -436,7 +436,7 @@
         particleRenderShaders[i] = new THREE.ShaderMaterial( {
           uniforms: {
               positions: { type: "t", value: null },
-              pointSize: { type: "f", value: 2.5 },
+              pointSize: { type: "f", value: 1.5 },
               boom: { type: "1", value: 0 }
           },
           vertexShader: document.getElementById( 'renderVertexShader' ).textContent,
