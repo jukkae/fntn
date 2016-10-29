@@ -81,7 +81,7 @@
 
       float circularDistanceFactor(vec2 v, vec2 u) {
         float dist = distance(v, u);
-        float df = clamp(circularMaxDist - dist, 0.0, circularMaxDist);
+        float df = clamp(1.0 / (dist*dist + 0.1), 0.0, 1.0);
         return df;
       }
 
@@ -315,7 +315,7 @@
       } );     
       var size = 10;
 
-      var circle = new THREE.CircleGeometry( size, 32 );
+      var circle = new THREE.CircleGeometry( size, 64 );
 
       var poolBottom = new THREE.Mesh( circle, defMaterial );
       scene.add( poolBottom );
@@ -353,7 +353,7 @@
         {
           time: { type: "f", value: 0.0 },
           timeFactor: { type: "f", value: 1.5 },
-          amplitudeFactor: { type: "f", value: 0.0 },
+          amplitudeFactor: { type: "f", value: 0.5 },
           scale: { type: "f", value: 0.5 },
           wavelengths: { type: "f[]", value: [8.0, 5.0, 3.2, 2.2, 1.7, 1.3] },
           speeds: { type: "f[]", value: [0.4, 0.43, 0.47, 0.5, 0.8, 0.9] },
