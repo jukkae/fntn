@@ -240,7 +240,7 @@
 
           float t = 10.0 - splashTimer;
           float theta = 45.0; // calculate this
-          float v0 = 3.0;
+          float v0 = 2.0;
           float g = 1.0;
 
           pos.x = v0 * t * timeFactor * cos(theta) * originPos.x;
@@ -248,13 +248,7 @@
           pos.z = v0 * t * timeFactor * sin(theta) - 0.5 * g * t * t;
           if(pos.z < 0.0){
             pos.z = -0.1;
-          } 
-
-//          pos.xy += originPos.xy;
-          // yeah dumb
-//          pos.z -= 0.01;
-//          pos.z += pos.z;
-//          if(length(pos) > 10.0) pos = originPos;
+          }
           
           gl_FragColor = vec4( pos, 1.0 );
       }
@@ -286,7 +280,7 @@
           }
 
           gl_Position = projectionMatrix *  modelViewMatrix * vec4( pos, 1.0 );
-          pSize = 2.0;
+          pSize = 5.0;
           if(pos.z < 0.0) {
             pSize = 0.0;
           }
@@ -368,15 +362,15 @@
           circularWaveStrengths: { type: "f[]", value: [circularWaveStrength1, circularWaveStrength2, circularWaveStrength3, circularWaveStrength4,
             circularWaveStrength5, circularWaveStrength6,
             circularWaveStrength7, circularWaveStrength8] },
-            circularWaveCenterPoints: { type: "v2[]", value: [
-            new THREE.Vector2 ( 10.0, 0.0 ),
-            new THREE.Vector2 ( 0.0, 5.0 ),
-            new THREE.Vector2 ( 0.0, 0.0 ),
-            new THREE.Vector2 ( 3.0, 5.0 ),
-            new THREE.Vector2 ( 0.0, 2.0 ),
-            new THREE.Vector2 ( 5.0, 5.0 ),
-            new THREE.Vector2 ( 0.0, 7.0 ),
-            new THREE.Vector2 ( 0.0, -5.0 )
+          circularWaveCenterPoints: { type: "v2[]", value: [
+            getRandomPoint(),
+            getRandomPoint(),
+            getRandomPoint(),
+            getRandomPoint(),
+            getRandomPoint(),
+            getRandomPoint(),
+            getRandomPoint(),
+            getRandomPoint()
           ] }
         }
       ]);
@@ -385,7 +379,7 @@
 
       function initParticles() {
         let fboGeo = sphere;
-        var noOfParticles = 1000;
+        var noOfParticles = 10000;
 
         let data = new Float32Array( noOfParticles );
 
@@ -396,7 +390,7 @@
             data[ i + 2 ] = points[ j ].z;
         }
         //texture is a square
-        let positions = new THREE.DataTexture( data, 5, 5, THREE.RGBFormat, THREE.FloatType );
+        let positions = new THREE.DataTexture( data, 10, 10, THREE.RGBFormat, THREE.FloatType );
         positions.needsUpdate = true;
         return positions;
       };
@@ -437,6 +431,8 @@
         s.position.set( 0, 0, 0 );
         scene.add(s);
         particleSubstrates[i] = s;
+
+        positions = initParticles();
 
         particleSimulationShaders[i] = new THREE.ShaderMaterial( {
           uniforms: {
@@ -534,8 +530,8 @@
             uniforms.circularWaveStrengths.value[i] -= (delta/10.0);
           } else {
             var center = getRandomPoint();
-            particleSubstrates[i].position.x = center.x;
-            particleSubstrates[i].position.y = center.y;
+            particleSubstrates[i].position.x = center.x/2; //wtf
+            particleSubstrates[i].position.y = center.y/2; //wtf
 
             particleSimulationShaders[i].uniforms.splashTimer.value = 10.0;
             uniforms.circularWaveStrengths.value[i] = 1.0;
