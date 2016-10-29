@@ -258,12 +258,7 @@
       void main() {
 
           //the mesh is a nomrliazed square so the uvs = the xy positions of the vertices
-          vec3 pos = texture2D( positions, reference).xyz;
-
-          // Distance from center?
-          /*
-          vColor = vec3(distToCenter, 0.5, 0.5);
-          */
+          vec3 pos = texture2D(positions, reference).xyz;
 
           vColor = vec3(1.0, reference);
           if (boom == 1) {
@@ -281,9 +276,7 @@
       varying vec3 vColor;
 
       void main() {
-        //gl_FragColor = vec4( vec3( 1., .5, .5 ), .85 );
         gl_FragColor = vec4(vColor, 1.);
-        //gl_FragColor = vec4(1., 0., 1., 1.);
       }
     </script>
     <script>
@@ -367,7 +360,7 @@
             data[ i + 2 ] = points[ j ].z;
         }
         //texture is a square
-        let positions = new THREE.DataTexture( data, 1, 1, THREE.RGBFormat, THREE.FloatType );
+        let positions = new THREE.DataTexture( data, 2, 2, THREE.RGBFormat, THREE.FloatType );
         positions.needsUpdate = true;
         return positions;
       };
@@ -407,7 +400,7 @@
         var particleGeometry  = new THREE.Geometry();
         particleGeometry.vertices.push( new THREE.Vector3() );
         fbo = new FBO();
-        fbo.init( 1, 1, renderer, simulationShader, renderShader, particleGeometry );
+        fbo.init( 2, 2, renderer, simulationShader, renderShader, particleGeometry );
         particleSubstrate.add( fbo.particles );
         fbo.update();
       }
