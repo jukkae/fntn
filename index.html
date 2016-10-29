@@ -37,7 +37,7 @@
       varying vec3 eyeDirection;
       varying vec3 vWorldPos;
 
-      float circularMaxDist = 5.0;
+      float circularMaxDist = 7.0;
 
       const float pi = 3.14159;
 
@@ -109,7 +109,7 @@
         float phaseSpeed = circularSpeed * frequency;
         vec2 waveDir = normalize(vertex - center);
         float distance = distance(vertex, center);
-        float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
+        float distanceFactor = clamp(circularMaxDist - distance, 0.0, circularMaxDist);
         float theta = dot(waveDir, vertex);
 
         float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * waveDir.x * frequency;
@@ -124,7 +124,7 @@
         float phaseSpeed = circularSpeed * frequency;
         vec2 waveDir = normalize(vertex - center);
         float distance = distance(vertex, center);
-        float distanceFactor = clamp(10.0 - distance, 0.0, 10.0);
+        float distanceFactor = clamp(circularMaxDist - distance, 0.0, circularMaxDist);
         float theta = dot(waveDir, vertex);
 
         float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * waveDir.y * frequency;
