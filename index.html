@@ -306,15 +306,12 @@
       camera.lookAt(new THREE.Vector3(0,0,0));
 
       var renderer = new THREE.WebGLRenderer();
-      renderer.sortObjects = false;
       renderer.setSize( window.innerWidth, window.innerHeight );
       document.body.appendChild( renderer.domElement );
 
 
       var defMaterial = new THREE.MeshPhongMaterial ( {
         color: 0xaaaaaa,
-        depthWrite: false,
-        blending: THREE.NoBlending
       } );     
       var size = 10;
 
