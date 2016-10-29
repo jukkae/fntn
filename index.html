@@ -206,7 +206,7 @@
     <script type="x-shader/x-vertex" id="simulationVertexShader">
      varying vec2 vUv; // cursor to texture
       void main() {
-          vUv = position.xy;
+          vUv = vec2(uv.x, 1.0 - uv.y);
           gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
       }
     </script>
@@ -229,6 +229,7 @@
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
       }
 
+
       void main() {
           vec3 pos;
           vec3 originPos;
@@ -236,7 +237,10 @@
           pos = texture2D( positions, vUv ).rgb;
           originPos = texture2D( origin, vUv ).rgb;
 
-          pos += originPos;
+          pos.xy += originPos.xy;
+          // yeah dumb
+          pos.z -= 0.01;
+          pos.z += pos.z;
           if(length(pos) > 10.0) pos = originPos;
           
           gl_FragColor = vec4( pos, 1.0 );
@@ -360,7 +364,7 @@
             data[ i + 2 ] = points[ j ].z;
         }
         //texture is a square
-        let positions = new THREE.DataTexture( data, 2, 2, THREE.RGBFormat, THREE.FloatType );
+        let positions = new THREE.DataTexture( data, 5, 5, THREE.RGBFormat, THREE.FloatType );
         positions.needsUpdate = true;
         return positions;
       };
@@ -396,11 +400,11 @@
       scene.add(particleSubstrate);
 
       function init() {
-        // Particle geometry? Just once particle
+        // One vertex per particle
         var particleGeometry  = new THREE.Geometry();
         particleGeometry.vertices.push( new THREE.Vector3() );
         fbo = new FBO();
-        fbo.init( 2, 2, renderer, simulationShader, renderShader, particleGeometry );
+        fbo.init( 5, 5, renderer, simulationShader, renderShader, particleGeometry );
         particleSubstrate.add( fbo.particles );
         fbo.update();
       }
