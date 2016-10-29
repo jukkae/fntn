@@ -239,7 +239,8 @@
           if(originPos.z < 0.0) originPos.z = -originPos.z;
 
           float t = 10.0 - splashTimer;
-          float theta = 45.0; // calculate this
+          vec3 ground = vec3(originPos.x, originPos.y, 0.0);
+          float theta = acos(dot(normalize(originPos), normalize(ground)));
           float v0 = 2.0;
           float g = 1.0;
 
