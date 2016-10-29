@@ -241,7 +241,7 @@
           float t = 10.0 - splashTimer;
           vec3 ground = vec3(originPos.x, originPos.y, 0.0);
           float theta = acos(dot(normalize(originPos), normalize(ground)));
-          float v0 = 2.0;
+          float v0 = 2.0 * length(originPos);
           float g = 1.0;
 
           pos.x = v0 * t * timeFactor * cos(theta) * originPos.x;
