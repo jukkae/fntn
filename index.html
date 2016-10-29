@@ -240,15 +240,15 @@
           originPos = texture2D( origin, vUv ).rgb;
           if(originPos.z < 0.0) originPos.z = -originPos.z;
 
-          float t = 10.0 - splashTimer;
+          float t = (10.0 - (splashTimer)) * timeFactor;
           vec3 ground = vec3(originPos.x, originPos.y, 0.0);
           float theta = acos(dot(normalize(originPos), normalize(ground)));
           float v0 = 1.5 * length(originPos);
           float g = 1.0;
 
-          pos.x = v0 * t * timeFactor * cos(theta) * originPos.x;
-          pos.y = v0 * t * timeFactor * cos(theta) * originPos.y;
-          pos.z = v0 * t * timeFactor * sin(theta) - 0.5 * g * t * t;
+          pos.x = v0 * t * cos(theta) * originPos.x;
+          pos.y = v0 * t * cos(theta) * originPos.y;
+          pos.z = v0 * t * sin(theta) - 0.5 * g * t * t;
           if(pos.z < 0.0){
             pos.z = -0.1;
           }
@@ -294,7 +294,7 @@
       varying vec3 vColor;
 
       void main() {
-        gl_FragColor = vec4(.6, .6, .9, 0.1);
+        gl_FragColor = vec4(.7, .7, .95, 0.15);
       }
     </script>
     <script>
@@ -416,7 +416,7 @@
             positions: { type: "t", value: positions },
             origin: { type: "t", value: positions },
             timer: { type: "f", value: 0},
-            timeFactor: {type: "f", value: 1.0 },
+            timeFactor: {type: "f", value: 2.0 },
             orderTimer: { type: "f", value: 0.0 },
             splashTimer: { type: "f", value: 0.0 }
           },
