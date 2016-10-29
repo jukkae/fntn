@@ -243,7 +243,7 @@
           float t = 10.0 - splashTimer;
           vec3 ground = vec3(originPos.x, originPos.y, 0.0);
           float theta = acos(dot(normalize(originPos), normalize(ground)));
-          float v0 = 2.0 * length(originPos);
+          float v0 = 1.5 * length(originPos);
           float g = 1.0;
 
           pos.x = v0 * t * timeFactor * cos(theta) * originPos.x;
@@ -268,8 +268,6 @@
 
       uniform int boom;
 
-      float pSize;
-
       void main() {
 
           //the mesh is a nomrliazed square so the uvs = the xy positions of the vertices
@@ -283,11 +281,12 @@
           }
 
           gl_Position = projectionMatrix *  modelViewMatrix * vec4( pos, 1.0 );
-          pSize = 2.0;
           if(pos.z < 0.0) {
-            pSize = 0.0;
+            gl_PointSize = 0.0;
           }
-          gl_PointSize = pSize;
+          else {
+            gl_PointSize = pointSize;
+          }
 
       }
     </script>
@@ -428,7 +427,7 @@
         particleRenderShaders[i] = new THREE.ShaderMaterial( {
           uniforms: {
               positions: { type: "t", value: null },
-              pointSize: { type: "f", value: 10.0},
+              pointSize: { type: "f", value: 5.0},
               boom: { type: "1", value: 0 }
           },
           vertexShader: document.getElementById( 'renderVertexShader' ).textContent,
