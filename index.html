@@ -512,7 +512,7 @@
             particleSubstrates[i].position.y = center.y/2; //wtf
 
             particleSimulationShaders[i].uniforms.splashTimer.value = 10.0;
-            uniforms.circularWaveStrengths.value[i] = 1.0;
+            uniforms.circularWaveStrengths.value[i] = Math.random()/2 + 0.5;
             uniforms.circularWaveCenterPoints.value[i] = center;
           }
         }
