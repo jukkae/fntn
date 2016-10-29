@@ -390,35 +390,10 @@
             data[ i + 2 ] = points[ j ].z;
         }
         //texture is a square
-        let positions = new THREE.DataTexture( data, 10, 10, THREE.RGBFormat, THREE.FloatType );
+        let positions = new THREE.DataTexture( data, 50, 10, THREE.RGBFormat, THREE.FloatType );
         positions.needsUpdate = true;
         return positions;
       };
-
-      var simulationShader = new THREE.ShaderMaterial( {
-        uniforms: {
-          positions: { type: "t", value: positions },
-          origin: { type: "t", value: positions },
-          timer: { type: "f", value: 0},
-          timeFactor: {type: "f", value: 1.0 },
-          orderTimer: { type: "f", value: 0.0 },
-          splashTimer: { type: "f", value: 0.0 }
-        },
-        vertexShader: document.getElementById( 'simulationVertexShader' ).textContent,
-        fragmentShader: document.getElementById( 'simulationFragmentShader' ).textContent
-      } );
-
-      var renderShader = new THREE.ShaderMaterial( {
-          uniforms: {
-              positions: { type: "t", value: null },
-              pointSize: { type: "f", value: 10.0},
-              boom: { type: "1", value: 0 }
-          },
-          vertexShader: document.getElementById( 'renderVertexShader' ).textContent,
-        fragmentShader: document.getElementById( 'renderFragmentShader' ).textContent,
-          transparent: false
-//            blending:THREE.AdditiveBlending
-      } );
 
       var particleSubstrates = [];
       var particleSimulationShaders = [];
