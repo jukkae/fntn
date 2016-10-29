@@ -255,7 +255,7 @@
               float particleRadius = distance(originPos, vec3(0, 0, 0));
 
               if (explodeTimer > 0.0 && explodeTimer < 1.0) {
-                  float variation = 0.2 + 0.8;
+                  float variation = 1.0;
                   particleRadius += (50.0 * explodeTimer * explodeTimer * variation);
       //            pos.z = originPos.z + 10.0 * explodeTimer * explodeTimer * variation;
               } else {
@@ -305,7 +305,7 @@
           }
 
           gl_Position = projectionMatrix *  modelViewMatrix * vec4( pos, 1.0 );
-          gl_PointSize = 10.0;
+          gl_PointSize = pointSize;
 
       }
     </script>
@@ -314,8 +314,8 @@
 
       void main() {
         //gl_FragColor = vec4( vec3( 1., .5, .5 ), .85 );
-        //gl_FragColor = vec4(vColor, 1.);
-        gl_FragColor = vec4(1., 0., 1., 1.);
+        gl_FragColor = vec4(vColor, 1.);
+        //gl_FragColor = vec4(1., 0., 1., 1.);
       }
     </script>
     <script>
@@ -419,7 +419,7 @@
       var renderShader = new THREE.ShaderMaterial( {
           uniforms: {
               positions: { type: "t", value: null },
-              pointSize: { type: "f", value: 0},
+              pointSize: { type: "f", value: 10.0},
               radius: { type: "f", value: 10 },
               boom: { type: "1", value: 0 }
           },
