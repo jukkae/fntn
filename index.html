@@ -510,8 +510,8 @@
             uniforms.circularWaveStrengths.value[i] -= (delta/1.0);
           } else {
             var center = getRandomPoint();
-            particleSubstrates[i].position.x = center.x/2; //wtf
-            particleSubstrates[i].position.y = center.y/2; //wtf
+            particleSubstrates[i].position.x = center.x;
+            particleSubstrates[i].position.y = center.y;
 
             particleSimulationShaders[i].uniforms.splashTimer.value = 10.0;
             uniforms.circularWaveStrengths.value[i] = Math.random()/2 + 0.5;
