@@ -204,9 +204,9 @@
       }
     </script>
     <script type="x-shader/x-vertex" id="simulationVertexShader">
-     varying vec2 vUv;
+     varying vec2 vUv; // cursor to texture
       void main() {
-          vUv = vec2(uv.x, 1.0 - uv.y);
+          vUv = position.xy;
           gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
       }
     </script>
@@ -236,8 +236,9 @@
           pos = texture2D( positions, vUv ).rgb;
           originPos = texture2D( origin, vUv ).rgb;
 
-          pos.x += 0.1;
-          if(pos.x > 10.0) pos.x = 0.0;
+          pos += originPos;
+          if(length(pos) > 10.0) pos = originPos;
+          
           gl_FragColor = vec4( pos, 1.0 );
       }
     </script>
@@ -355,18 +356,19 @@
 
       function initParticles() {
         let fboGeo = sphere;
+        var noOfParticles = 1000;
 
-        let data = new Float32Array( window.innerWidth*window.innerHeight );
+        let data = new Float32Array( noOfParticles );
 
-        let points = THREE.GeometryUtils.randomPointsInGeometry(fboGeo, window.innerWidth*window.innerHeight );
+        let points = THREE.GeometryUtils.randomPointsInGeometry(fboGeo, noOfParticles );
         for ( var i = 0, j = 0, l = data.length; i < l; i += 3, j += 1 ) {
             data[ i ] = points[ j ].x;
             data[ i + 1 ] = points[ j ].y;
             data[ i + 2 ] = points[ j ].z;
         }
-        let positions = new THREE.DataTexture( data, window.innerWidth, window.innerHeight, THREE.RGBFormat, THREE.FloatType );
+        //texture is a square
+        let positions = new THREE.DataTexture( data, 1, 1, THREE.RGBFormat, THREE.FloatType );
         positions.needsUpdate = true;
-        
         return positions;
       };
 
@@ -405,7 +407,7 @@
         var particleGeometry  = new THREE.Geometry();
         particleGeometry.vertices.push( new THREE.Vector3() );
         fbo = new FBO();
-        fbo.init( window.innerWidth, window.innerHeight, renderer, simulationShader, renderShader, particleGeometry );
+        fbo.init( 1, 1, renderer, simulationShader, renderShader, particleGeometry );
         particleSubstrate.add( fbo.particles );
         fbo.update();
       }
