@@ -391,7 +391,7 @@
             data[ i + 2 ] = points[ j ].z;
         }
         //texture is a square
-        let positions = new THREE.DataTexture( data, 50, 10, THREE.RGBFormat, THREE.FloatType );
+        let positions = new THREE.DataTexture( data, 32, 32, THREE.RGBFormat, THREE.FloatType );
         positions.needsUpdate = true;
         return positions;
       };
@@ -442,7 +442,7 @@
           var particleGeometry  = new THREE.Geometry();
           particleGeometry.vertices.push( new THREE.Vector3() );
           fbos[i] = new FBO();
-          fbos[i].init( 50, 50, renderer, particleSimulationShaders[i], particleRenderShaders[i], particleGeometry );
+          fbos[i].init( 32, 32, renderer, particleSimulationShaders[i], particleRenderShaders[i], particleGeometry );
           particleSubstrates[i].add( fbos[i].particles );
           fbos[i].update();
         }
