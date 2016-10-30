@@ -193,7 +193,9 @@
       varying vec3 worldNormal;
       varying vec3 eyeDirection;
       varying vec3 vWorldPos;
+      uniform float minAlpha;
       uniform float maxAlpha;
+      uniform float minLightAmt;
 
       struct PointLight {
         vec3 position;
@@ -206,12 +208,12 @@
         for(int l = 0; l < NUM_POINT_LIGHTS; l++) {
           vec3 adjustedLight = pointLights[l].position + cameraPosition;
           vec3 lightDirection = normalize(vWorldPos - adjustedLight);
-          addedLights.rgb += clamp(dot(lightDirection, worldNormal), 0.0, 1.0) * pointLights[l].color;
+          addedLights.rgb += clamp(dot(lightDirection, worldNormal), minLightAmt, 1.0) * pointLights[l].color;
         }
 
         vec3 r = vec3(0.5, 0.8, 1.0);
-        float alpha = clamp(dot(-eyeDirection, worldNormal), 0.0, maxAlpha);
-        vec4 c = vec4(r, 0.5 + (alpha / 2.0));
+        float alpha = clamp(dot(-eyeDirection, worldNormal), minAlpha, maxAlpha);
+        vec4 c = vec4(r, alpha);
         gl_FragColor = c * addedLights;
       }
     </script>
@@ -276,7 +278,6 @@
 
       void main() {
 
-          //the mesh is a nomrliazed square so the uvs = the xy positions of the vertices
           vec3 pos = texture2D(positions, reference).xyz;
 
           vColor = vec3(1.0, reference);
@@ -310,8 +311,9 @@
       document.body.appendChild( renderer.domElement );
 
 
-      var defMaterial = new THREE.MeshPhongMaterial ( {
-        color: 0xaaaaaa,
+      var texture = THREE.ImageUtils.loadTexture('textures/collage_Tzina_selfies2.png');
+      var defMaterial = new THREE.MeshBasicMaterial ( {
+        map: texture
       } );     
       var size = 10;
 
@@ -387,7 +389,9 @@
           circularAmplitudeDisplacementFactor: { type: "f", value: 0.0 },
           circularAmplitudeNormalFactor: { type: "f", value: 1.0 },
           circularMaxDist: { type: "f", value: 10.0 },
-          maxAlpha: { type: "f", value: 0.9 }
+          minAlpha: { type: "f", value: 0.1 },
+          maxAlpha: { type: "f", value: 0.9 },
+          minLightAmt: { type: "f", value: 0.05 }
         }
       ]);
       
