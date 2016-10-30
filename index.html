@@ -193,6 +193,7 @@
       varying vec3 worldNormal;
       varying vec3 eyeDirection;
       varying vec3 vWorldPos;
+      uniform float maxAlpha;
 
       struct PointLight {
         vec3 position;
@@ -209,7 +210,7 @@
         }
 
         vec3 r = vec3(0.5, 0.8, 1.0);
-        float alpha = clamp(dot(-eyeDirection, worldNormal), 0.0, 1.0);
+        float alpha = clamp(dot(-eyeDirection, worldNormal), 0.0, maxAlpha);
         vec4 c = vec4(r, 0.5 + (alpha / 2.0));
         gl_FragColor = c * addedLights;
       }
@@ -385,7 +386,8 @@
           circularAmplitudeFactor: { type: "f", value: 0.08 },
           circularAmplitudeDisplacementFactor: { type: "f", value: 0.0 },
           circularAmplitudeNormalFactor: { type: "f", value: 1.0 },
-          circularMaxDist: { type: "f", value: 10.0 }
+          circularMaxDist: { type: "f", value: 10.0 },
+          maxAlpha: { type: "f", value: 0.9 }
         }
       ]);
       
