@@ -275,19 +275,12 @@
 
       uniform float pointSize;
 
-      uniform int boom;
-
       void main() {
 
           //the mesh is a nomrliazed square so the uvs = the xy positions of the vertices
           vec3 pos = texture2D(positions, reference).xyz;
 
           vColor = vec3(1.0, reference);
-          if (boom == 1) {
-              float distToCenter = distance(pos, vec3(0, 0, 0));
-              vColor.g += (25.0 - distToCenter) / 65.0;
-              vColor.b += (25.0 - distToCenter) / 65.0;
-          }
 
           gl_Position = projectionMatrix *  modelViewMatrix * vec4( pos, 1.0 );
           if(pos.z < 0.0) {
@@ -449,8 +442,7 @@
         particleRenderShaders[i] = new THREE.ShaderMaterial( {
           uniforms: {
               positions: { type: "t", value: null },
-              pointSize: { type: "f", value: 1.0 },
-              boom: { type: "1", value: 0 }
+              pointSize: { type: "f", value: 1.0 }
           },
           vertexShader: document.getElementById( 'renderVertexShader' ).textContent,
           fragmentShader: document.getElementById( 'renderFragmentShader' ).textContent,
