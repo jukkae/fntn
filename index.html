@@ -19,7 +19,11 @@
       uniform float scale;
       uniform float timeFactor;
       uniform float amplitudeFactor;
+      uniform float amplitudeDisplacementFactor;
+      uniform float amplitudeNormalFactor;
       uniform float circularAmplitudeFactor;
+      uniform float circularAmplitudeDisplacementFactor;
+      uniform float circularAmplitudeNormalFactor;
       
       uniform float wavelengths[6];
       uniform float amplitudes[6];
@@ -52,7 +56,7 @@
         float frequency = 2.0 * pi / wavelengths[i];
         float phase = speeds[i] * frequency;
         float theta = dot(directions[i], vec2(x, y));
-        return scale * amplitudes[i] * amplitudeFactor * modSin(theta * frequency + time * timeFactor * phase);
+        return scale * amplitudes[i] * amplitudeFactor * amplitudeDisplacementFactor * modSin(theta * frequency + time * timeFactor * phase);
       }
 
       float waveHeight(float x, float y) {
@@ -67,7 +71,7 @@
         float frequency = 2.0*pi/wavelengths[i];
         float phase = speeds[i] * frequency;
         float theta = dot(directions[i], vec2(x, y));
-        float A = amplitudes[i] * amplitudeFactor * directions[i].x * frequency;
+        float A = amplitudes[i] * amplitudeFactor * amplitudeNormalFactor * directions[i].x * frequency;
         return A * cos(theta * frequency + time * timeFactor * phase);
       }
 
@@ -75,7 +79,7 @@
         float frequency = 2.0*pi/wavelengths[i];
         float phase = speeds[i] * frequency;
         float theta = dot(directions[i], vec2(x, y));
-        float A = amplitudes[i] * amplitudeFactor * directions[i].y * frequency;
+        float A = amplitudes[i] * amplitudeFactor * amplitudeNormalFactor * directions[i].y * frequency;
         return A * cos(theta * frequency + time * timeFactor * phase);
       }
 
@@ -99,7 +103,7 @@
         float distanceFactor = circularDistanceFactor(vertex, center);
         float theta = dot(waveDir, vertex);
 
-        float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor;
+        float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * circularAmplitudeDisplacementFactor;
         return A * cos(theta * sqrt(pow((vertex.x - center.x), 2.0) + pow((vertex.y - center.y), 2.0)) + (time * -timeFactor * phaseSpeed)
           );
       }
@@ -121,7 +125,7 @@
         float distanceFactor = circularDistanceFactor(vertex, center);
         float theta = dot(waveDir, vertex);
 
-        float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * waveDir.x * frequency;
+        float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * circularAmplitudeNormalFactor * waveDir.x * frequency;
         return A * cos(theta * sqrt(pow((vertex.x - center.x), 2.0) + pow((vertex.y - center.y), 2.0)) + (time * -timeFactor * phaseSpeed)
           );
       }
@@ -135,7 +139,7 @@
         float distanceFactor = circularDistanceFactor(vertex, center);
         float theta = dot(waveDir, vertex);
 
-        float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * waveDir.y * frequency;
+        float A = circularWaveStrengths[i] * scale * distanceFactor * circularAmplitudeFactor * circularAmplitudeNormalFactor * waveDir.y * frequency;
         return A * cos(theta * sqrt(pow((vertex.x - center.x), 2.0) + pow((vertex.y - center.y), 2.0)) + (time * -timeFactor * phaseSpeed)
           );
       }
@@ -357,7 +361,9 @@
         {
           time: { type: "f", value: 0.0 },
           timeFactor: { type: "f", value: 1.5 },
-          amplitudeFactor: { type: "f", value: 0.5 },
+          amplitudeFactor: { type: "f", value: 0.3 },
+          amplitudeDisplacementFactor: { type: "f", value: 0.0 },
+          amplitudeNormalFactor: { type: "f", value: 1.0 },
           scale: { type: "f", value: 0.5 },
           wavelengths: { type: "f[]", value: [8.0, 5.0, 3.2, 2.2, 1.7, 1.3] },
           speeds: { type: "f[]", value: [0.4, 0.43, 0.47, 0.5, 0.8, 0.9] },
@@ -385,7 +391,9 @@
             getRandomPoint(),
             getRandomPoint()
           ] },
-          circularAmplitudeFactor: {type: "f", value: 0.05 },
+          circularAmplitudeFactor: { type: "f", value: 0.05 },
+          circularAmplitudeDisplacementFactor: { type: "f", value: 0.0 },
+          circularAmplitudeNormalFactor: { type: "f", value: 1.0 },
           circularMaxDist: { type: "f", value: 10.0 }
         }
       ]);
