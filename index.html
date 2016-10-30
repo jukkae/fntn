@@ -80,8 +80,13 @@
       }
 
       float circularDistanceFactor(vec2 v, vec2 u) {
-        float dist = distance(v, u);
+        vec2 dv = v - u;
+        float dist = distance(u, v);
+        dist = sqrt(dot(dv, dv));
         float df = clamp(1.0 / (dist*dist + 0.1), 0.0, 1.0);
+        if(dist > circularMaxDist) {
+          df = 0.0;
+        }
         return df;
       }
 
@@ -90,7 +95,7 @@
         vec2 center = circularWaveCenterPoints[i];
         float frequency = 2.0 * pi / circularWavelength;
         float phaseSpeed = circularSpeed * frequency;
-        vec2 waveDir = normalize(vertex - center);
+        vec2 waveDir = normalize(2.0*vertex - center); // i don't even know anymore why this must be like this, but wave directions break down otherwise
         float distanceFactor = circularDistanceFactor(vertex, center);
         float theta = dot(waveDir, vertex);
 
@@ -112,7 +117,7 @@
         vec2 center = circularWaveCenterPoints[i];
         float frequency = 2.0 * pi / circularWavelength;
         float phaseSpeed = circularSpeed * frequency;
-        vec2 waveDir = normalize(vertex - center);
+        vec2 waveDir = normalize(2.0*vertex - center);
         float distanceFactor = circularDistanceFactor(vertex, center);
         float theta = dot(waveDir, vertex);
 
@@ -126,7 +131,7 @@
         vec2 center = circularWaveCenterPoints[i];
         float frequency = 2.0 * pi / circularWavelength;
         float phaseSpeed = circularSpeed * frequency;
-        vec2 waveDir = normalize(vertex - center);
+        vec2 waveDir = normalize(2.0*vertex - center);
         float distanceFactor = circularDistanceFactor(vertex, center);
         float theta = dot(waveDir, vertex);
 
@@ -160,7 +165,6 @@
       }
 
       void main(void) {
-        vColor = vec3((position.x+5.0)/10.0, (position.y+5.0)/10.0, 1);
         vec4 viewModelPosition = modelViewMatrix * vec4( position, 1 );
         vViewPosition = viewModelPosition.xyz;
         eyeDirection = normalize(vViewPosition - position);
@@ -366,7 +370,7 @@
             new THREE.Vector2 ( 1.0, 0.3 ).normalize(),
             new THREE.Vector2 ( 0.0, 0.4 ).normalize()
           ] },
-          circularWavelength: { type: "f", value: 0.7 },
+          circularWavelength: { type: "f", value: 0.6 },
           circularSpeed: { type: "f", value: 1.0 },
           circularWaveStrengths: { type: "f[]", value: [circularWaveStrength1, circularWaveStrength2, circularWaveStrength3, circularWaveStrength4,
             circularWaveStrength5, circularWaveStrength6,
@@ -381,8 +385,8 @@
             getRandomPoint(),
             getRandomPoint()
           ] },
-          circularAmplitudeFactor: {type: "f", value: 0.2 },
-          circularMaxDist: { type: "f", value: 3.0 }
+          circularAmplitudeFactor: {type: "f", value: 0.05 },
+          circularMaxDist: { type: "f", value: 10.0 }
         }
       ]);
       
@@ -512,10 +516,9 @@
             var center = getRandomPoint();
             particleSubstrates[i].position.x = center.x;
             particleSubstrates[i].position.y = center.y;
-
+            uniforms.circularWaveCenterPoints.value[i] = center;
             particleSimulationShaders[i].uniforms.splashTimer.value = 10.0;
             uniforms.circularWaveStrengths.value[i] = Math.random()/2 + 0.5;
-            uniforms.circularWaveCenterPoints.value[i] = center;
           }
         }
         update(delta, clock.getElapsedTime());
