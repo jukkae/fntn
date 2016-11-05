@@ -354,7 +354,7 @@
           this.positions = this.initParticles();
           this.initParticleParents();
           this.initCircularWaves();
-
+          this.initMaterials();
         }
 
         initLights() {
@@ -465,7 +465,7 @@
 
         initCircularWaves() {
           this.noOfCircularWaves = 8; // if this is changed, the change must be reflected in water surface shaders
-          let particleSimulationShaders = [];
+          this.particleSimulationShaders = [];
           let particleRenderShaders = [];
           for (var i = 0; i < this.noOfCircularWaves; i++) {
             var s = new THREE.Object3D(); // empty parent object for particle system
@@ -475,7 +475,7 @@
 
             this.positions = this.initParticles();
 
-            particleSimulationShaders[i] = new THREE.ShaderMaterial( {
+            this.particleSimulationShaders[i] = new THREE.ShaderMaterial( {
               uniforms: {
                 positions: { type: "t", value: this.positions },
                 origin: { type: "t", value: this.positions },
@@ -504,8 +504,7 @@
             var particleGeometry  = new THREE.Geometry();
             particleGeometry.vertices.push( new THREE.Vector3() );
             this.fbos[i] = new FBO();
-            console.log(particleRenderShaders[i]);
-            this.fbos[i].init( 32, 32, renderer, particleSimulationShaders[i], particleRenderShaders[i], particleGeometry );
+            this.fbos[i].init( 32, 32, renderer, this.particleSimulationShaders[i], particleRenderShaders[i], particleGeometry );
             this.fbos[i].particles.renderOrder = 1;
             this.particleParents[i].add( this.fbos[i].particles );
             this.fbos[i].update();
@@ -515,16 +514,16 @@
         // dt = delta time, et = elapsed time
         updateParticleSystems(dt, et) {
           for(var i = 0; i < this.noOfCircularWaves; i++){
-            particleSimulationShaders[i].uniforms.timer.value = et;
+            this.particleSimulationShaders[i].uniforms.timer.value = et;
             this.fbos[i].update();
-            particleSimulationShaders[i].uniforms.splashTimer.value -= dt;
+            this.particleSimulationShaders[i].uniforms.splashTimer.value -= dt;
           }
         }
 
         initMaterials() {
           // water material
-          var material = new THREE.ShaderMaterial( {
-            uniforms: uniforms,
+          this.material = new THREE.ShaderMaterial( {
+            uniforms: this.uniforms,
             vertexShader: document.getElementById( 'vertexShader' ).textContent,
             fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
             transparent: true,
@@ -532,13 +531,15 @@
           } );
 
           // create water surface
-          var waterSurface = new THREE.Mesh( circle, material );
-          scene.add( waterSurface );
+          this.waterSurface = new THREE.Mesh( this.circle, this.material );
+          scene.add( this.waterSurface );
+          console.log( this.waterSurface );
+          console.log("SURFACE ADDED");
 
           var tessellateModifier = new THREE.TessellateModifier(.01);      
           var tessellationDepth = 11; // decrease / increase according to performance & quality
           for(var i = 0; i < tessellationDepth; i++){
-            tessellateModifier.modify(circle);
+            tessellateModifier.modify(this.circle);
           }
         }
 
