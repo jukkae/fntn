@@ -466,7 +466,7 @@
         initCircularWaves() {
           this.noOfCircularWaves = 8; // if this is changed, the change must be reflected in water surface shaders
           this.particleSimulationShaders = [];
-          let particleRenderShaders = [];
+          let particleRenderShaders = []; // There WAS a reason for different declarations but I'm not too sure of that anymore. Better not touch.
           for (var i = 0; i < this.noOfCircularWaves; i++) {
             var s = new THREE.Object3D(); // empty parent object for particle system
             s.position.set( 0, 0, 0 );
@@ -533,8 +533,6 @@
           // create water surface
           this.waterSurface = new THREE.Mesh( this.circle, this.material );
           scene.add( this.waterSurface );
-          console.log( this.waterSurface );
-          console.log("SURFACE ADDED");
 
           var tessellateModifier = new THREE.TessellateModifier(.01);      
           var tessellationDepth = 11; // decrease / increase according to performance & quality
@@ -551,7 +549,7 @@
           return new THREE.Vector2(x, y);
         }
 
-        update(delta, elapsedTime) {
+        update(delta) {
           this.uniforms.time.value += delta;
           // update waves
           for(var i = 0; i < this.noOfCircularWaves; i++){
@@ -568,7 +566,7 @@
             }
           }
           // update particle systems
-          this.updateParticleSystems(delta, elapsedTime);
+          this.updateParticleSystems(delta, this.uniforms.time.value);
         }
       }
 
@@ -584,8 +582,7 @@
 
         // pass delta & elapsed time
         var delta = clock.getDelta();
-        var elapsedTime = clock.getElapsedTime();
-        fountain.update(delta, elapsedTime);
+        fountain.update(delta);
       }
       render();
     </script>
