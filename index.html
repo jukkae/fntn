@@ -11,11 +11,8 @@
   <body>
     <script src="js/three.min.js"></script>
     <script src="js/OrbitControls.js"></script>
-    <!-- required -->
     <script src="js/TessellateModifier.js"></script>
-    <!-- required -->
-    <script src="util/fbo.js"></script> <!-- should be imported ofc -->
-    <!-- required -->
+    <script src="util/fbo.js"></script>
     <script src="util/GeometryUtils.js"></script>
 
     <script type="x-shader/x-vertex" id="vertexShader">
@@ -231,7 +228,6 @@
           vec3 lightDirection = normalize(vWorldPos - adjustedLight);
           addedLights.rgb += clamp(dot(lightDirection, worldNormal), minLightAmt, 1.0) * pointLights[l].color;
         }
-        // TODO add support for directional and spot lights as well?
 
         vec3 r = vec3(0.6, 0.7, 0.95); // water base color
         float alpha = clamp(dot(-eyeDirection, worldNormal), minAlpha, maxAlpha);
@@ -263,7 +259,6 @@
 
       const float PI = 3.1415926535897932384626433832795;
 
-      //TODO move to glsl-random
       //this is exactly the same as in glsl-random
       //not using node here so this CAN be fixed with glslify
       float rand(vec2 co){
@@ -481,7 +476,7 @@
                 forceFactor: { type: "f", value: 1.0 }
               },
               vertexShader: document.getElementById( 'simulationVertexShader' ).textContent,
-              fragmentShader: document.getElementById( 'simulationFragmentShader' ).textContent // this must be changed when the shaders are taken out
+              fragmentShader: document.getElementById( 'simulationFragmentShader' ).textContent // TODO fix shader loading
             } );
 
             particleRenderShaders[i] = new THREE.ShaderMaterial( {
@@ -491,7 +486,7 @@
               },
               vertexShader: document.getElementById( 'renderVertexShader' ).textContent,
               fragmentShader: document.getElementById( 'renderFragmentShader' ).textContent,
-              transparent: true, // this must be changed when the shaders are taken out
+              transparent: true, // TODO fix shader loading
             } );
           }          
 
@@ -517,6 +512,7 @@
 
         initMaterials() {
           // water material
+          // TODO fix shader loading
           this.material = new THREE.ShaderMaterial( {
             uniforms: this.uniforms,
             vertexShader: document.getElementById( 'vertexShader' ).textContent,
