@@ -1,7 +1,7 @@
 // https://github.com/nicoptere/FBO
-//import THREE from 'three'
+import THREE from 'three'
 
-/*export default*/ class FBO {
+export default class FBO {
     constructor() {
         console.log("FBO Constructed")
     }
