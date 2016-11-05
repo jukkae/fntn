@@ -348,12 +348,12 @@
           this.bottom = new THREE.Mesh( this.circle, this.photoMaterial );
           this.bottom.position.z = -0.5; // distance between surface and bottom
           this.initLights();
-          initWaves();
-          initUniforms();
+          this.initWaves();
+          this.initUniforms();
           // Initialize particle systems
-          this.positions = initParticles();
-          initParticleParents();
-          initCircularWaves();
+          this.positions = this.initParticles();
+          this.initParticleParents();
+          this.initCircularWaves();
 
         }
 
@@ -369,14 +369,14 @@
           scene.add( this.pointLight );
 
           this.lightCue2 = new THREE.Mesh( this.sphere, this.photoMaterial );
-          lightCue2.position.set( 0, 0, 9 );
+          this.lightCue2.position.set( 0, 0, 9 );
           scene.add(this.lightCue2);
 
           this.pointLight2 = new THREE.PointLight( 0xffaaaa, 0.8 );
-          pointLight2.position.set( 0, 0, 8 );
-          scene.add( pointLight2 );
+          this.pointLight2.position.set( 0, 0, 8 );
+          scene.add( this.pointLight2 );
           // end of throw away
-          scene.add( bottom ); // shouldn't be here either
+          scene.add( this.bottom ); // shouldn't be here either
         }
 
         initWaves() {
@@ -416,18 +416,18 @@
               ] },
               circularWavelength: { type: "f", value: 0.6 },
               circularSpeed: { type: "f", value: 1.0 },
-              circularWaveStrengths: { type: "f[]", value: [circularWaveStrength1, circularWaveStrength2, circularWaveStrength3, circularWaveStrength4,
-                circularWaveStrength5, circularWaveStrength6,
-                circularWaveStrength7, circularWaveStrength8] },
+              circularWaveStrengths: { type: "f[]", value: [this.circularWaveStrength1, this.circularWaveStrength2, this.circularWaveStrength3, this.circularWaveStrength4,
+                this.circularWaveStrength5, this.circularWaveStrength6,
+                this.circularWaveStrength7, this.circularWaveStrength8] },
               circularWaveCenterPoints: { type: "v2[]", value: [
-                getRandomPoint(),
-                getRandomPoint(),
-                getRandomPoint(),
-                getRandomPoint(),
-                getRandomPoint(),
-                getRandomPoint(),
-                getRandomPoint(),
-                getRandomPoint()
+                this.getRandomPoint(),
+                this.getRandomPoint(),
+                this.getRandomPoint(),
+                this.getRandomPoint(),
+                this.getRandomPoint(),
+                this.getRandomPoint(),
+                this.getRandomPoint(),
+                this.getRandomPoint()
               ] },
               circularAmplitudeFactor: { type: "f", value: 0.08 },
               circularAmplitudeDisplacementFactor: { type: "f", value: 0.0 },
@@ -441,7 +441,7 @@
         }
 
         initParticles() {
-          let fboGeo = sphere;
+          let fboGeo = this.sphere;
           var noOfParticles = 10000; // Maximum amount of particles
 
           let data = new Float32Array( noOfParticles );
@@ -460,26 +460,26 @@
 
         initParticleParents() {
         this.particleParents = []; // (empty) parent objects for particle systems
-        this.particleSimulationShaders = [];
-        this.particleRenderShaders = [];
         this.fbos = [];
         }
 
         initCircularWaves() {
           this.noOfCircularWaves = 8; // if this is changed, the change must be reflected in water surface shaders
-          for (var i = 0; i < noOfCircularWaves; i++) {
+          let particleSimulationShaders = [];
+          let particleRenderShaders = [];
+          for (var i = 0; i < this.noOfCircularWaves; i++) {
             var s = new THREE.Object3D(); // empty parent object for particle system
             s.position.set( 0, 0, 0 );
             scene.add(s);
-            particleParents[i] = s;
+            this.particleParents[i] = s;
 
-            positions = initParticles();
+            this.positions = this.initParticles();
 
             particleSimulationShaders[i] = new THREE.ShaderMaterial( {
               uniforms: {
-                positions: { type: "t", value: positions },
-                origin: { type: "t", value: positions },
-                timer: { type: "f", value: 0},
+                positions: { type: "t", value: this.positions },
+                origin: { type: "t", value: this.positions },
+                timer: { type: "f", value: 0 },
                 timeFactor: {type: "f", value: 3.0 },
                 orderTimer: { type: "f", value: 0.0 },
                 splashTimer: { type: "f", value: 0.0 },
@@ -488,36 +488,35 @@
               vertexShader: document.getElementById( 'simulationVertexShader' ).textContent,
               fragmentShader: document.getElementById( 'simulationFragmentShader' ).textContent // this must be changed when the shaders are taken out
             } );
-          }
 
-          particleRenderShaders[i] = new THREE.ShaderMaterial( {
-            uniforms: {
-                positions: { type: "t", value: null },
-                pointSize: { type: "f", value: 1.0 }
-            },
-            vertexShader: document.getElementById( 'renderVertexShader' ).textContent,
-            fragmentShader: document.getElementById( 'renderFragmentShader' ).textContent,
-            transparent: true, // this must be changed when the shaders are taken out
-          } );
-        }
+            particleRenderShaders[i] = new THREE.ShaderMaterial( {
+              uniforms: {
+                  positions: { type: "t", value: null },
+                  pointSize: { type: "f", value: 1.0 }
+              },
+              vertexShader: document.getElementById( 'renderVertexShader' ).textContent,
+              fragmentShader: document.getElementById( 'renderFragmentShader' ).textContent,
+              transparent: true, // this must be changed when the shaders are taken out
+            } );
+          }          
 
-        init() {
-          for (var i = 0; i < noOfCircularWaves; i++) {
+          for (var i = 0; i < this.noOfCircularWaves; i++) {
             var particleGeometry  = new THREE.Geometry();
             particleGeometry.vertices.push( new THREE.Vector3() );
-            fbos[i] = new FBO();
-            fbos[i].init( 32, 32, renderer, particleSimulationShaders[i], particleRenderShaders[i], particleGeometry );
-            fbos[i].particles.renderOrder = 1;
-            particleParents[i].add( fbos[i].particles );
-            fbos[i].update();
+            this.fbos[i] = new FBO();
+            console.log(particleRenderShaders[i]);
+            this.fbos[i].init( 32, 32, renderer, particleSimulationShaders[i], particleRenderShaders[i], particleGeometry );
+            this.fbos[i].particles.renderOrder = 1;
+            this.particleParents[i].add( this.fbos[i].particles );
+            this.fbos[i].update();
           }
         }
 
         // dt = delta time, et = elapsed time
         updateParticleSystems(dt, et) {
-          for(var i = 0; i < noOfCircularWaves; i++){
+          for(var i = 0; i < this.noOfCircularWaves; i++){
             particleSimulationShaders[i].uniforms.timer.value = et;
-            fbos[i].update();
+            this.fbos[i].update();
             particleSimulationShaders[i].uniforms.splashTimer.value -= dt;
           }
         }
@@ -544,31 +543,31 @@
         }
 
         getRandomPoint() {
-          dSquared = Math.random() * size * size;
-          theta = Math.random() * Math.PI * 2;
-          x = Math.sqrt(dSquared) * Math.cos(theta);
-          y = Math.sqrt(dSquared) * Math.sin(theta);
+          var dSquared = Math.random() * this.size * this.size;
+          var theta = Math.random() * Math.PI * 2;
+          var x = Math.sqrt(dSquared) * Math.cos(theta);
+          var y = Math.sqrt(dSquared) * Math.sin(theta);
           return new THREE.Vector2(x, y);
         }
 
         update(delta, elapsedTime) {
-          uniforms.time.value += delta;
+          this.uniforms.time.value += delta;
           // update waves
-          for(var i = 0; i < noOfCircularWaves; i++){
-            if(uniforms.circularWaveStrengths.value[i] > 0) {
-              uniforms.circularWaveStrengths.value[i] -= (delta/1.0);
+          for(var i = 0; i < this.noOfCircularWaves; i++){
+            if(this.uniforms.circularWaveStrengths.value[i] > 0) {
+              this.uniforms.circularWaveStrengths.value[i] -= (delta/1.0);
             } else {
               // spawn new wave
-              var center = getRandomPoint();
-              particleParents[i].position.x = center.x;
-              particleParents[i].position.y = center.y;
-              uniforms.circularWaveCenterPoints.value[i] = center;
-              particleSimulationShaders[i].uniforms.splashTimer.value = 10.0;
-              uniforms.circularWaveStrengths.value[i] = Math.random()/2 + 0.5;
+              var center = this.getRandomPoint();
+              this.particleParents[i].position.x = center.x;
+              this.particleParents[i].position.y = center.y;
+              this.uniforms.circularWaveCenterPoints.value[i] = center;
+              this.particleSimulationShaders[i].uniforms.splashTimer.value = 10.0;
+              this.uniforms.circularWaveStrengths.value[i] = Math.random()/2 + 0.5;
             }
           }
           // update particle systems
-          updateParticleSystems(delta, elapsedTime);
+          this.updateParticleSystems(delta, elapsedTime);
         }
       }
 
@@ -587,7 +586,6 @@
         var elapsedTime = clock.getElapsedTime();
         fountain.update(delta, elapsedTime);
       }
-      fountain.init();
       render();
     </script>
   </body>
