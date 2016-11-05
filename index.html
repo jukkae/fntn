@@ -324,7 +324,6 @@
       }
     </script>
     <script>
-      // not required stuff starts
       var scene = new THREE.Scene();
       var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
       camera.position.z = 15;
@@ -334,11 +333,23 @@
       var renderer = new THREE.WebGLRenderer();
       renderer.setSize( window.innerWidth, window.innerHeight );
       document.body.appendChild( renderer.domElement );
-      // not required stuff ends
 
-      // required stuff starts
-      class Fountain {
-        constructor() {
+      // just a couple of point lights
+      var pointLight = new THREE.PointLight( 0xaaffaa, 0.8 );
+      pointLight.position.set( 10, 10, 5 );
+      scene.add( pointLight );
+      var pointLight2 = new THREE.PointLight( 0xffaaaa, 0.8 );
+      pointLight2.position.set( 0, 0, 8 );
+      scene.add( pointLight2 );
+
+      controls = new THREE.OrbitControls( camera, renderer.domElement );
+      var clock = new THREE.Clock();
+      clock.start();
+      
+      class Fountain extends THREE.Object3D {
+        constructor(renderer) {
+          super();
+
           this.texture = THREE.ImageUtils.loadTexture('textures/collage_Tzina_selfies2.png');
           this.photoMaterial = new THREE.MeshBasicMaterial ( {
             map: this.texture
@@ -347,6 +358,7 @@
           this.circle = new THREE.CircleGeometry( this.size, 64 );
           this.bottom = new THREE.Mesh( this.circle, this.photoMaterial );
           this.bottom.position.z = -0.5; // distance between surface and bottom
+          this.add(this.bottom);
           this.initLights();
           this.initWaves();
           this.initUniforms();
@@ -358,25 +370,8 @@
         }
 
         initLights() {
-          // test lights for dev, throw away
-          this.sphere = new THREE.SphereGeometry( 1 );
-          this.lightCue = new THREE.Mesh( this.sphere, this.photoMaterial );
-          this.lightCue.position.set( 11, 11, 6 );
-          scene.add(this.lightCue);
 
-          this.pointLight = new THREE.PointLight( 0xaaffaa, 0.8 );
-          this.pointLight.position.set( 10, 10, 5 );
-          scene.add( this.pointLight );
-
-          this.lightCue2 = new THREE.Mesh( this.sphere, this.photoMaterial );
-          this.lightCue2.position.set( 0, 0, 9 );
-          scene.add(this.lightCue2);
-
-          this.pointLight2 = new THREE.PointLight( 0xffaaaa, 0.8 );
-          this.pointLight2.position.set( 0, 0, 8 );
-          scene.add( this.pointLight2 );
           // end of throw away
-          scene.add( this.bottom ); // shouldn't be here either
         }
 
         initWaves() {
@@ -441,7 +436,7 @@
         }
 
         initParticles() {
-          let fboGeo = this.sphere;
+          let fboGeo = new THREE.SphereGeometry(1); // initial positions are randomized within a sphere of radius 1
           var noOfParticles = 10000; // Maximum amount of particles
 
           let data = new Float32Array( noOfParticles );
@@ -470,7 +465,7 @@
           for (var i = 0; i < this.noOfCircularWaves; i++) {
             var s = new THREE.Object3D(); // empty parent object for particle system
             s.position.set( 0, 0, 0 );
-            scene.add(s);
+            this.add(s);
             this.particleParents[i] = s;
 
             this.positions = this.initParticles();
@@ -532,7 +527,7 @@
 
           // create water surface
           this.waterSurface = new THREE.Mesh( this.circle, this.material );
-          scene.add( this.waterSurface );
+          this.add( this.waterSurface );
 
           var tessellateModifier = new THREE.TessellateModifier(.01);      
           var tessellationDepth = 11; // decrease / increase according to performance & quality
@@ -571,10 +566,7 @@
       }
 
       var fountain = new Fountain();
-
-      controls = new THREE.OrbitControls( camera, renderer.domElement );
-      var clock = new THREE.Clock();
-      clock.start();
+      scene.add(fountain);
 
       function render() {
         requestAnimationFrame( render );
